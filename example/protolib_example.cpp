@@ -1,6 +1,5 @@
-#include <cstdio>
-
-#include "utils/ProtoUtils.h"
+#include "core/ProtoUtils.h"
+#include "log.h"
 
 int main() {
     std::string payload;
@@ -21,19 +20,19 @@ int main() {
     // 解析数据
     {
         auto msg = ProtoUtils::ParsePayload(payload);
-        printf("seq:%d, type:%d\n", msg.seq(), msg.type());
+        LOGF("seq:%d, type:%d\n", msg.seq(), msg.type());
         assert(msg.type() == Msg::COMMAND);
 
         switch (msg.cmd()) {
             case Msg::PING:
             {
                 auto addr = ProtoUtils::UnpackMsgData<Msg::Payload>(msg);
-                printf("payload:%s\n", addr.payload().c_str());
+                LOGF("payload:%s\n", addr.payload().c_str());
                 break;
             }
             default:
             {
-                printf("unknown cmd:%d\n", msg.cmd());
+                LOGF("unknown cmd:%d\n", msg.cmd());
                 break;
             }
         }

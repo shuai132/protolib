@@ -1,3 +1,6 @@
 [submodule "third_party/protobuf"]
 	path = third_party/protobuf
 	url = https://gitee.com/shuai132/protobuf.git
+[submodule "modules/log"]
+	path = modules/log
+	url = https://github.com/shuai132/LOG.git

@@ -27,9 +27,12 @@ include_directories(.)
 add_library(${PROJECT_NAME}
         STATIC
         proto/cpp/Msg.pb.cc
-        utils/ProtoUtils.cpp
+        core/ProtoUtils.cpp
         )
 link_libraries(${PROJECT_NAME})
+
+# log
+include_directories(modules/log)
 
 # example
 add_executable(protolib_example example/protolib_example.cpp)
