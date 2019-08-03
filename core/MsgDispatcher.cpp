@@ -15,8 +15,8 @@ void MsgDispatcher::dispatcher(Connection* conn, const Msg& msg) {
             auto cmd = msg.cmd();
             LOGD("dispatcher cmd: seq=%d, cmd=%d", msg.seq(), cmd);
 
-            auto iter = _cmdHandleMap.find(cmd);
-            if (iter == _cmdHandleMap.cend()) {
+            auto iter = cmdHandleMap_.find(cmd);
+            if (iter == cmdHandleMap_.cend()) {
                 LOGD("not register cmd for: %d", cmd);
                 return;
             }
@@ -28,7 +28,16 @@ void MsgDispatcher::dispatcher(Connection* conn, const Msg& msg) {
         case Msg::RESPONSE:
         {
             LOGD("dispatcher rsp: seq=%d, success=%s", msg.seq(), msg.success() ? "true" : "false");
-            // todo: 实现消息回复回调
+            auto iter = rspHandleMap_.find(msg.seq());
+            if (iter == rspHandleMap_.cend()) {
+                LOGD("not register callback for response");
+                break;
+            }
+            auto cb = (*iter).second;
+            assert(cb);
+            cb(msg);
+            rspHandleMap_.erase(iter);
+            LOGD("rspHandleMap_.size=%ld", rspHandleMap_.size());
         } break;
 
         default:
@@ -36,6 +45,16 @@ void MsgDispatcher::dispatcher(Connection* conn, const Msg& msg) {
     }
 }
 
-void MsgDispatcher::regist(CmdType cmd, const CmdHandle& handle) {
-    _cmdHandleMap[cmd] = handle;
+void MsgDispatcher::registerCmd(CmdType cmd, const CmdHandle& handle) {
+    cmdHandleMap_[cmd] = handle;
+}
+
+void MsgDispatcher::registerRsp(SeqType seq, const MsgDispatcher::RspHandle& handle) {
+    if (handle == nullptr)
+        return;
+    rspHandleMap_[seq] = handle;
+}
+
+void MsgDispatcher::registerRsp(const Msg &msg, const MsgDispatcher::RspHandle &handle) {
+    registerRsp(msg.seq(), handle);
 }

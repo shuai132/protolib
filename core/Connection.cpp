@@ -10,10 +10,10 @@ void Connection::onPayload(const std::string& payload) {
 }
 
 Connection::Connection() {
-    MsgDispatcher::getInstance()->regist(Msg::PING, [](const Msg& param) {
+    MsgDispatcher::getInstance()->registerCmd(Msg::PING, [](const Msg &param) {
         LOGD("get PING");
         auto msg = static_cast<Msg>(param);
         msg.set_cmd(Msg::PONG);
-        return ProtoUtils::CreateRspMsg(msg.seq(), msg);
+        return ProtoUtils::CreateRspMsg(msg.seq(), ProtoUtils::UnpackMsgData<Msg::Payload>(msg));
     });
 }

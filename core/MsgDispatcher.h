@@ -15,13 +15,19 @@ class MsgDispatcher {
 public:
     using CmdHandle = std::function<Msg(const Msg&)>;
     using CmdHandleMap = std::map<CmdType, CmdHandle>;
+    using RspHandle = std::function<void(const Msg&)>;
+    using RspHandleMap = std::map<SeqType, RspHandle>;
 
 public:
     static MsgDispatcher* getInstance();
 
     void dispatcher(Connection* conn, const Msg& command);
 
-    void regist(CmdType cmd, const CmdHandle& handle);
+    void registerCmd(CmdType cmd, const CmdHandle& handle);
+
+    void registerRsp(SeqType seq, const RspHandle& handle);
+
+    void registerRsp(const Msg& msg, const RspHandle& handle);
 
 private:
     MsgDispatcher() = default;
@@ -30,5 +36,6 @@ private:
     MsgDispatcher& operator=(const MsgDispatcher&) = delete;
 
 private:
-    CmdHandleMap _cmdHandleMap;
+    CmdHandleMap cmdHandleMap_;
+    RspHandleMap rspHandleMap_;
 };

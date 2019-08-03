@@ -1,10 +1,12 @@
 #pragma once
 
 #include "proto/cpp/Msg.pb.h"
+#include "MsgDispatcher.h"
 #include "Type.h"
 
 using namespace google::protobuf;
 using namespace proto;
+using RspCallback = MsgDispatcher::RspHandle;
 
 namespace ProtoUtils {
 
@@ -21,6 +23,7 @@ inline Msg CreateCmdMsg(CmdType cmd, const Message& data = MsgNone) {
     }
     return msg;
 }
+
 inline Msg CreateRspMsg(SeqType seq, const Message& data = MsgNone, bool success = true) {
     Msg msg;
     msg.set_type(Msg::RESPONSE);
@@ -40,10 +43,12 @@ inline std::string CreatePayload(const Msg& msg) {
 }
 
 template <CmdType cmd>
-inline std::string CreateCmdPayload(const Message &message = MsgNone) {
+inline std::string CreateCmdPayload(const Message &message = MsgNone, const RspCallback& cb = nullptr) {
     std::string payload;
-    bool ret = CreateCmdMsg(cmd, message).SerializeToString(&payload);
+    auto msg = CreateCmdMsg(cmd, message);
+    auto ret = msg.SerializeToString(&payload);
     assert(ret);
+    MsgDispatcher::getInstance()->registerRsp(msg.seq(), cb);
     return payload;
 }
 
@@ -52,6 +57,17 @@ inline std::string CreateCmdPayload(const Message &message = MsgNone) {
  */
 template <typename T>
 inline T UnpackMsgData(const Msg& msg) {
+    T data;
+    bool ret = msg.data().UnpackTo(&data);
+    assert(ret);
+    return data;
+}
+
+/**
+ * 将Response解析为指定类型的数据
+ */
+template <typename T>
+inline T UnpackRspData(const Msg& msg) {
     T data;
     bool ret = msg.data().UnpackTo(&data);
     assert(ret);
