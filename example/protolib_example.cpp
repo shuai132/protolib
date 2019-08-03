@@ -4,10 +4,28 @@
 #include "proto/cpp/AppMsg.pb.h"
 #include "log.h"
 
+/**
+ * 命令AppMsg::HELLO 对应数据类型为AppMsg::HelloPayload
+ * 此示例演示消息的收发
+ * 1. 发送payload(此处为hello_payload_string)
+ * 2. 接收payload并原样返回它
+ * 3. 此时发送者会受到消息回复也是payload
+ */
 int main() {
+    // 回环的连接 用于测试 实际场景应为具体的传输协议实现的Connection
     LoopbackConnection connection;
 
+    // 测试payload
     const std::string hello_payload_string("hello payload");
+
+    // 初始化连接
+    {
+        connection.setPayloadHandle([&](const std::string& payload){
+            MsgDispatcher::getInstance()->dispatcher(&connection, ProtoUtils::ParsePayload(payload));
+        });
+    }
+
+    // 注册消息
     {
         auto dispatcher = MsgDispatcher::getInstance();
 
@@ -21,14 +39,7 @@ int main() {
         });
     }
 
-    // 初始化连接
-    {
-        connection.setPayloadHandle([&](const std::string& payload){
-            MsgDispatcher::getInstance()->dispatcher(&connection, ProtoUtils::ParsePayload(payload));
-        });
-    }
-
-    // 包装数据
+    // 发送消息和接收响应
     {
         // hello
         {

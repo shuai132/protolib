@@ -10,9 +10,18 @@ using RspCallback = MsgDispatcher::RspHandle;
 
 namespace ProtoUtils {
 
+// 消息的序列号 作为消息ID
 static std::atomic<SeqType> MsgSeq(0);
-const Msg MsgNone;
 
+// 默认空消息 方便接口设计
+const Msg MsgNone; // NOLINT(cert-err58-cpp)
+
+/**
+ * 创建Cmd消息
+ * @param cmd
+ * @param data
+ * @return
+ */
 inline Msg CreateCmdMsg(CmdType cmd, const Message& data = MsgNone) {
     Msg msg;
     msg.set_type(Msg::COMMAND);
@@ -24,6 +33,13 @@ inline Msg CreateCmdMsg(CmdType cmd, const Message& data = MsgNone) {
     return msg;
 }
 
+/**
+ * 创建Rsp消息
+ * @param seq 对应Cmd的seq
+ * @param data Msg.data
+ * @param success 成功/失败
+ * @return
+ */
 inline Msg CreateRspMsg(SeqType seq, const Message& data = MsgNone, bool success = true) {
     Msg msg;
     msg.set_type(Msg::RESPONSE);
@@ -35,6 +51,11 @@ inline Msg CreateRspMsg(SeqType seq, const Message& data = MsgNone, bool success
     return msg;
 }
 
+/**
+ * 用Msg创建payload
+ * @param msg
+ * @return
+ */
 inline std::string CreatePayload(const Msg& msg) {
     std::string payload;
     bool ret = msg.SerializeToString(&payload);
@@ -42,10 +63,17 @@ inline std::string CreatePayload(const Msg& msg) {
     return payload;
 }
 
+/**
+ * 创建Cmd消息并转换成Payload方便传输
+ * @tparam cmd
+ * @param message
+ * @param cb
+ * @return
+ */
 template <CmdType cmd>
-inline std::string CreateCmdPayload(const Message &message = MsgNone, const RspCallback& cb = nullptr) {
+inline std::string CreateCmdPayload(const Message &data = MsgNone, const RspCallback& cb = nullptr) {
     std::string payload;
-    auto msg = CreateCmdMsg(cmd, message);
+    auto msg = CreateCmdMsg(cmd, data);
     auto ret = msg.SerializeToString(&payload);
     assert(ret);
     MsgDispatcher::getInstance()->registerRsp(msg.seq(), cb);
@@ -64,16 +92,8 @@ inline T UnpackMsgData(const Msg& msg) {
 }
 
 /**
- * 将Response解析为指定类型的数据
+ * 将payload转换为Msg
  */
-template <typename T>
-inline T UnpackRspData(const Msg& msg) {
-    T data;
-    bool ret = msg.data().UnpackTo(&data);
-    assert(ret);
-    return data;
-}
-
 inline Msg ParsePayload(const string& payload) {
     Msg msg;
     auto ret = msg.ParseFromString(payload);
