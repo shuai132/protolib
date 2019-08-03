@@ -27,9 +27,4 @@ message Msg {
         PING = 1;
         PONG = 2;
     }
-
-    // for PING/PONG
-    message Payload {
-        string payload = 1;
-    }
 }

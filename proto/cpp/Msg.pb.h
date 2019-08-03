@@ -49,7 +49,7 @@ struct TableStruct_Msg_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[2]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[1]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -60,13 +60,9 @@ namespace proto {
 class Msg;
 class MsgDefaultTypeInternal;
 extern MsgDefaultTypeInternal _Msg_default_instance_;
-class Msg_Payload;
-class Msg_PayloadDefaultTypeInternal;
-extern Msg_PayloadDefaultTypeInternal _Msg_Payload_default_instance_;
 }  // namespace proto
 PROTOBUF_NAMESPACE_OPEN
 template<> ::proto::Msg* Arena::CreateMaybeMessage<::proto::Msg>(Arena*);
-template<> ::proto::Msg_Payload* Arena::CreateMaybeMessage<::proto::Msg_Payload>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace proto {
 
@@ -123,143 +119,6 @@ inline bool Msg_Cmd_Parse(
 }
 // ===================================================================
 
-class Msg_Payload :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.Msg.Payload) */ {
- public:
-  Msg_Payload();
-  virtual ~Msg_Payload();
-
-  Msg_Payload(const Msg_Payload& from);
-  Msg_Payload(Msg_Payload&& from) noexcept
-    : Msg_Payload() {
-    *this = ::std::move(from);
-  }
-
-  inline Msg_Payload& operator=(const Msg_Payload& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline Msg_Payload& operator=(Msg_Payload&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return GetMetadataStatic().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return GetMetadataStatic().reflection;
-  }
-  static const Msg_Payload& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const Msg_Payload* internal_default_instance() {
-    return reinterpret_cast<const Msg_Payload*>(
-               &_Msg_Payload_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
-
-  friend void swap(Msg_Payload& a, Msg_Payload& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(Msg_Payload* other) {
-    if (other == this) return;
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline Msg_Payload* New() const final {
-    return CreateMaybeMessage<Msg_Payload>(nullptr);
-  }
-
-  Msg_Payload* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<Msg_Payload>(arena);
-  }
-  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const Msg_Payload& from);
-  void MergeFrom(const Msg_Payload& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  #if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  #else
-  bool MergePartialFromCodedStream(
-      ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) final;
-  #endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-  void SerializeWithCachedSizes(
-      ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* InternalSerializeWithCachedSizesToArray(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(Msg_Payload* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "proto.Msg.Payload";
-  }
-  private:
-  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
-    return nullptr;
-  }
-  inline void* MaybeArenaPtr() const {
-    return nullptr;
-  }
-  public:
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
-  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
-    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_Msg_2eproto);
-    return ::descriptor_table_Msg_2eproto.file_level_metadata[kIndexInFileMessages];
-  }
-
-  public:
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kPayloadFieldNumber = 1,
-  };
-  // string payload = 1;
-  void clear_payload();
-  const std::string& payload() const;
-  void set_payload(const std::string& value);
-  void set_payload(std::string&& value);
-  void set_payload(const char* value);
-  void set_payload(const char* value, size_t size);
-  std::string* mutable_payload();
-  std::string* release_payload();
-  void set_allocated_payload(std::string* payload);
-
-  // @@protoc_insertion_point(class_scope:proto.Msg.Payload)
- private:
-  class _Internal;
-
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr payload_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_Msg_2eproto;
-};
-// -------------------------------------------------------------------
-
 class Msg :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.Msg) */ {
  public:
@@ -302,7 +161,7 @@ class Msg :
                &_Msg_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    0;
 
   friend void swap(Msg& a, Msg& b) {
     a.Swap(&b);
@@ -369,8 +228,6 @@ class Msg :
   public:
 
   // nested types ----------------------------------------------------
-
-  typedef Msg_Payload Payload;
 
   typedef Msg_Type Type;
   static constexpr Type COMMAND =
@@ -493,61 +350,6 @@ class Msg :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// Msg_Payload
-
-// string payload = 1;
-inline void Msg_Payload::clear_payload() {
-  payload_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline const std::string& Msg_Payload::payload() const {
-  // @@protoc_insertion_point(field_get:proto.Msg.Payload.payload)
-  return payload_.GetNoArena();
-}
-inline void Msg_Payload::set_payload(const std::string& value) {
-  
-  payload_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:proto.Msg.Payload.payload)
-}
-inline void Msg_Payload::set_payload(std::string&& value) {
-  
-  payload_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:proto.Msg.Payload.payload)
-}
-inline void Msg_Payload::set_payload(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  payload_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:proto.Msg.Payload.payload)
-}
-inline void Msg_Payload::set_payload(const char* value, size_t size) {
-  
-  payload_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:proto.Msg.Payload.payload)
-}
-inline std::string* Msg_Payload::mutable_payload() {
-  
-  // @@protoc_insertion_point(field_mutable:proto.Msg.Payload.payload)
-  return payload_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline std::string* Msg_Payload::release_payload() {
-  // @@protoc_insertion_point(field_release:proto.Msg.Payload.payload)
-  
-  return payload_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline void Msg_Payload::set_allocated_payload(std::string* payload) {
-  if (payload != nullptr) {
-    
-  } else {
-    
-  }
-  payload_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), payload);
-  // @@protoc_insertion_point(field_set_allocated:proto.Msg.Payload.payload)
-}
-
-// -------------------------------------------------------------------
-
 // Msg
 
 // uint32 seq = 1;
@@ -654,8 +456,6 @@ inline void Msg::set_success(bool value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 
 // @@protoc_insertion_point(namespace_scope)
 

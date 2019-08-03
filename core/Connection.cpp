@@ -15,6 +15,6 @@ Connection::Connection() {
         LOGD("get PING");
         auto msg = static_cast<Msg>(param);
         msg.set_cmd(Msg::PONG);
-        return ProtoUtils::CreateRspMsg(msg.seq(), ProtoUtils::UnpackMsgData<Msg::Payload>(msg));
+        return ProtoUtils::CreateRspMsg(msg.seq(), ProtoUtils::UnpackMsgData<StringValue>(msg));
     });
 }

@@ -10,9 +10,4 @@ message AppMsg {
         // todo: add user cmd
         HELLO = 11;
     }
-
-    // todo: add user message
-    message HelloPayload {
-        string payload = 1;
-    }
 }
