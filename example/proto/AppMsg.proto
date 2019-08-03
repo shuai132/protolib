@@ -8,10 +8,11 @@ message AppMsg {
         NONE = 0;
         RESERVED = 10;
         // todo: add user cmd
+        HELLO = 11;
     }
 
     // todo: add user message
-    message Payload {
+    message HelloPayload {
         string payload = 1;
     }
 }

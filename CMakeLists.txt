@@ -28,6 +28,8 @@ add_library(${PROJECT_NAME}
         STATIC
         proto/cpp/Msg.pb.cc
         core/ProtoUtils.cpp
+        core/MsgDispatcher.cpp
+        core/Connection.cpp
         )
 link_libraries(${PROJECT_NAME})
 
@@ -35,7 +37,7 @@ link_libraries(${PROJECT_NAME})
 include_directories(modules/log)
 
 # example
-add_executable(protolib_example example/protolib_example.cpp)
+add_subdirectory(example)
 
 # protoc
 # 指定库的proto文件路径和生成目录

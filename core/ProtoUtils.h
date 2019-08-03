@@ -1,38 +1,35 @@
 #pragma once
 
 #include "proto/cpp/Msg.pb.h"
+#include "Type.h"
 
 using namespace google::protobuf;
 using namespace proto;
 
 namespace ProtoUtils {
 
-static std::atomic<uint32_t> MsgSeq(0);
+static std::atomic<SeqType> MsgSeq(0);
 const Msg MsgNone;
 
-template <Msg::Type type>
-inline Msg CreateMsg(const Message& data = MsgNone, Msg::Cmd cmd = Msg::NONE, bool success = true) {
+inline Msg CreateCmdMsg(CmdType cmd, const Message& data = MsgNone) {
     Msg msg;
+    msg.set_type(Msg::COMMAND);
+    msg.set_cmd(cmd);
     msg.set_seq(MsgSeq++);
-    msg.set_type(type);
-    if (type == Msg::COMMAND) {
-        msg.set_cmd(cmd);
-    } else {
-        msg.set_success(success);
-    }
     if (&data != &MsgNone) {
         msg.mutable_data()->PackFrom(data);
     }
     return msg;
 }
-
-inline Msg CreateCmdMsg(Msg::Cmd cmd, const Message &data = MsgNone) {
-    return CreateMsg<Msg::COMMAND>(data, cmd);
-}
-
-template <bool success = true>
-inline Msg CreateRspMsg(const Message& data = MsgNone) {
-    return CreateMsg<Msg::RESPONSE>(data, Msg::NONE, success);
+inline Msg CreateRspMsg(SeqType seq, const Message& data = MsgNone, bool success = true) {
+    Msg msg;
+    msg.set_type(Msg::RESPONSE);
+    msg.set_success(success);
+    msg.set_seq(seq);
+    if (&data != &MsgNone) {
+        msg.mutable_data()->PackFrom(data);
+    }
+    return msg;
 }
 
 inline std::string CreatePayload(const Msg& msg) {
@@ -42,10 +39,10 @@ inline std::string CreatePayload(const Msg& msg) {
     return payload;
 }
 
-template <Msg::Cmd cmd>
+template <CmdType cmd>
 inline std::string CreateCmdPayload(const Message &message = MsgNone) {
     std::string payload;
-    bool ret = CreateMsg<Msg::COMMAND>(message, cmd).SerializeToString(&payload);
+    bool ret = CreateCmdMsg(cmd, message).SerializeToString(&payload);
     assert(ret);
     return payload;
 }

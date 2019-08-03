@@ -1,41 +1,54 @@
+#include "core/MsgDispatcher.h"
 #include "core/ProtoUtils.h"
+#include "core/Connection.h"
+#include "proto/cpp/AppMsg.pb.h"
 #include "log.h"
 
 int main() {
-    std::string payload;
+    LoopbackConnection connection;
+
+    const std::string hello_payload_string("hello payload");
+    {
+        auto dispatcher = MsgDispatcher::getInstance();
+
+        dispatcher->regist(AppMsg::HELLO, [&](const Msg& param) {
+            LOGF("get HELLO");
+            auto helloPayload = ProtoUtils::UnpackMsgData<AppMsg::HelloPayload>(param);
+            LOGF("payload:%s", helloPayload.payload().c_str());
+            assert(helloPayload.payload() == hello_payload_string);
+            return ProtoUtils::CreateRspMsg(param.seq());
+        });
+    }
+
+    // 初始化连接
+    {
+        connection.setPayloadHandle([&](const std::string& payload){
+            MsgDispatcher::getInstance()->dispatcher(&connection, ProtoUtils::ParsePayload(payload));
+        });
+    }
 
     // 包装数据
     {
-        // 构造消息
-        Msg::Payload ping;
-        ping.set_payload("ping");
+        // hello
+        {
+            // 构造消息
+            AppMsg::HelloPayload helloPayload;
+            helloPayload.set_payload(hello_payload_string);
 
-        // 指定消息类型创建payload
-        payload = ProtoUtils::CreateCmdPayload<Msg::PING>(ping);
-    }
+            // 指定消息类型创建payload
+            auto payload = ProtoUtils::CreateCmdPayload<AppMsg::HELLO>(helloPayload);
 
-    // NOTE: 发送payload
-    // NOTE: 接收payload
+            // 发送数据
+            connection.sendPayload(payload);
+        }
 
-    // 解析数据
-    {
-        auto msg = ProtoUtils::ParsePayload(payload);
-        LOGF("seq:%d, type:%d\n", msg.seq(), msg.type());
-        assert(msg.type() == Msg::COMMAND);
-
-        switch (msg.cmd()) {
-            case Msg::PING:
-            {
-                auto addr = ProtoUtils::UnpackMsgData<Msg::Payload>(msg);
-                LOGF("payload:%s\n", addr.payload().c_str());
-                break;
-            }
-            default:
-            {
-                LOGF("unknown cmd:%d\n", msg.cmd());
-                break;
-            }
+        // ping
+        {
+            Msg::Payload ping;
+            ping.set_payload("ping payload");
+            connection.sendPayload(ProtoUtils::CreateCmdPayload<Msg::PING>(ping));
         }
     }
+
     return 0;
 }

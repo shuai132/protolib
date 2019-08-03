@@ -59,25 +59,26 @@ namespace proto {
 class AppMsg;
 class AppMsgDefaultTypeInternal;
 extern AppMsgDefaultTypeInternal _AppMsg_default_instance_;
-class AppMsg_Payload;
-class AppMsg_PayloadDefaultTypeInternal;
-extern AppMsg_PayloadDefaultTypeInternal _AppMsg_Payload_default_instance_;
+class AppMsg_HelloPayload;
+class AppMsg_HelloPayloadDefaultTypeInternal;
+extern AppMsg_HelloPayloadDefaultTypeInternal _AppMsg_HelloPayload_default_instance_;
 }  // namespace proto
 PROTOBUF_NAMESPACE_OPEN
 template<> ::proto::AppMsg* Arena::CreateMaybeMessage<::proto::AppMsg>(Arena*);
-template<> ::proto::AppMsg_Payload* Arena::CreateMaybeMessage<::proto::AppMsg_Payload>(Arena*);
+template<> ::proto::AppMsg_HelloPayload* Arena::CreateMaybeMessage<::proto::AppMsg_HelloPayload>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace proto {
 
 enum AppMsg_Cmd : int {
   AppMsg_Cmd_NONE = 0,
   AppMsg_Cmd_RESERVED = 10,
+  AppMsg_Cmd_HELLO = 11,
   AppMsg_Cmd_AppMsg_Cmd_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   AppMsg_Cmd_AppMsg_Cmd_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool AppMsg_Cmd_IsValid(int value);
 constexpr AppMsg_Cmd AppMsg_Cmd_Cmd_MIN = AppMsg_Cmd_NONE;
-constexpr AppMsg_Cmd AppMsg_Cmd_Cmd_MAX = AppMsg_Cmd_RESERVED;
+constexpr AppMsg_Cmd AppMsg_Cmd_Cmd_MAX = AppMsg_Cmd_HELLO;
 constexpr int AppMsg_Cmd_Cmd_ARRAYSIZE = AppMsg_Cmd_Cmd_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* AppMsg_Cmd_descriptor();
@@ -96,23 +97,23 @@ inline bool AppMsg_Cmd_Parse(
 }
 // ===================================================================
 
-class AppMsg_Payload :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.AppMsg.Payload) */ {
+class AppMsg_HelloPayload :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proto.AppMsg.HelloPayload) */ {
  public:
-  AppMsg_Payload();
-  virtual ~AppMsg_Payload();
+  AppMsg_HelloPayload();
+  virtual ~AppMsg_HelloPayload();
 
-  AppMsg_Payload(const AppMsg_Payload& from);
-  AppMsg_Payload(AppMsg_Payload&& from) noexcept
-    : AppMsg_Payload() {
+  AppMsg_HelloPayload(const AppMsg_HelloPayload& from);
+  AppMsg_HelloPayload(AppMsg_HelloPayload&& from) noexcept
+    : AppMsg_HelloPayload() {
     *this = ::std::move(from);
   }
 
-  inline AppMsg_Payload& operator=(const AppMsg_Payload& from) {
+  inline AppMsg_HelloPayload& operator=(const AppMsg_HelloPayload& from) {
     CopyFrom(from);
     return *this;
   }
-  inline AppMsg_Payload& operator=(AppMsg_Payload&& from) noexcept {
+  inline AppMsg_HelloPayload& operator=(AppMsg_HelloPayload&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -130,37 +131,37 @@ class AppMsg_Payload :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const AppMsg_Payload& default_instance();
+  static const AppMsg_HelloPayload& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const AppMsg_Payload* internal_default_instance() {
-    return reinterpret_cast<const AppMsg_Payload*>(
-               &_AppMsg_Payload_default_instance_);
+  static inline const AppMsg_HelloPayload* internal_default_instance() {
+    return reinterpret_cast<const AppMsg_HelloPayload*>(
+               &_AppMsg_HelloPayload_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     0;
 
-  friend void swap(AppMsg_Payload& a, AppMsg_Payload& b) {
+  friend void swap(AppMsg_HelloPayload& a, AppMsg_HelloPayload& b) {
     a.Swap(&b);
   }
-  inline void Swap(AppMsg_Payload* other) {
+  inline void Swap(AppMsg_HelloPayload* other) {
     if (other == this) return;
     InternalSwap(other);
   }
 
   // implements Message ----------------------------------------------
 
-  inline AppMsg_Payload* New() const final {
-    return CreateMaybeMessage<AppMsg_Payload>(nullptr);
+  inline AppMsg_HelloPayload* New() const final {
+    return CreateMaybeMessage<AppMsg_HelloPayload>(nullptr);
   }
 
-  AppMsg_Payload* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<AppMsg_Payload>(arena);
+  AppMsg_HelloPayload* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<AppMsg_HelloPayload>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const AppMsg_Payload& from);
-  void MergeFrom(const AppMsg_Payload& from);
+  void CopyFrom(const AppMsg_HelloPayload& from);
+  void MergeFrom(const AppMsg_HelloPayload& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -181,10 +182,10 @@ class AppMsg_Payload :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(AppMsg_Payload* other);
+  void InternalSwap(AppMsg_HelloPayload* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "proto.AppMsg.Payload";
+    return "proto.AppMsg.HelloPayload";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -222,7 +223,7 @@ class AppMsg_Payload :
   std::string* release_payload();
   void set_allocated_payload(std::string* payload);
 
-  // @@protoc_insertion_point(class_scope:proto.AppMsg.Payload)
+  // @@protoc_insertion_point(class_scope:proto.AppMsg.HelloPayload)
  private:
   class _Internal;
 
@@ -343,13 +344,15 @@ class AppMsg :
 
   // nested types ----------------------------------------------------
 
-  typedef AppMsg_Payload Payload;
+  typedef AppMsg_HelloPayload HelloPayload;
 
   typedef AppMsg_Cmd Cmd;
   static constexpr Cmd NONE =
     AppMsg_Cmd_NONE;
   static constexpr Cmd RESERVED =
     AppMsg_Cmd_RESERVED;
+  static constexpr Cmd HELLO =
+    AppMsg_Cmd_HELLO;
   static inline bool Cmd_IsValid(int value) {
     return AppMsg_Cmd_IsValid(value);
   }
@@ -394,57 +397,57 @@ class AppMsg :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// AppMsg_Payload
+// AppMsg_HelloPayload
 
 // string payload = 1;
-inline void AppMsg_Payload::clear_payload() {
+inline void AppMsg_HelloPayload::clear_payload() {
   payload_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline const std::string& AppMsg_Payload::payload() const {
-  // @@protoc_insertion_point(field_get:proto.AppMsg.Payload.payload)
+inline const std::string& AppMsg_HelloPayload::payload() const {
+  // @@protoc_insertion_point(field_get:proto.AppMsg.HelloPayload.payload)
   return payload_.GetNoArena();
 }
-inline void AppMsg_Payload::set_payload(const std::string& value) {
+inline void AppMsg_HelloPayload::set_payload(const std::string& value) {
   
   payload_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:proto.AppMsg.Payload.payload)
+  // @@protoc_insertion_point(field_set:proto.AppMsg.HelloPayload.payload)
 }
-inline void AppMsg_Payload::set_payload(std::string&& value) {
+inline void AppMsg_HelloPayload::set_payload(std::string&& value) {
   
   payload_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:proto.AppMsg.Payload.payload)
+  // @@protoc_insertion_point(field_set_rvalue:proto.AppMsg.HelloPayload.payload)
 }
-inline void AppMsg_Payload::set_payload(const char* value) {
+inline void AppMsg_HelloPayload::set_payload(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   payload_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:proto.AppMsg.Payload.payload)
+  // @@protoc_insertion_point(field_set_char:proto.AppMsg.HelloPayload.payload)
 }
-inline void AppMsg_Payload::set_payload(const char* value, size_t size) {
+inline void AppMsg_HelloPayload::set_payload(const char* value, size_t size) {
   
   payload_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:proto.AppMsg.Payload.payload)
+  // @@protoc_insertion_point(field_set_pointer:proto.AppMsg.HelloPayload.payload)
 }
-inline std::string* AppMsg_Payload::mutable_payload() {
+inline std::string* AppMsg_HelloPayload::mutable_payload() {
   
-  // @@protoc_insertion_point(field_mutable:proto.AppMsg.Payload.payload)
+  // @@protoc_insertion_point(field_mutable:proto.AppMsg.HelloPayload.payload)
   return payload_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline std::string* AppMsg_Payload::release_payload() {
-  // @@protoc_insertion_point(field_release:proto.AppMsg.Payload.payload)
+inline std::string* AppMsg_HelloPayload::release_payload() {
+  // @@protoc_insertion_point(field_release:proto.AppMsg.HelloPayload.payload)
   
   return payload_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline void AppMsg_Payload::set_allocated_payload(std::string* payload) {
+inline void AppMsg_HelloPayload::set_allocated_payload(std::string* payload) {
   if (payload != nullptr) {
     
   } else {
     
   }
   payload_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), payload);
-  // @@protoc_insertion_point(field_set_allocated:proto.AppMsg.Payload.payload)
+  // @@protoc_insertion_point(field_set_allocated:proto.AppMsg.HelloPayload.payload)
 }
 
 // -------------------------------------------------------------------
