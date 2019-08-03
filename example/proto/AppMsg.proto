@@ -1,0 +1,17 @@
+syntax = "proto3";
+package proto;
+
+// 消息收发复用Msg类型
+message AppMsg {
+    // 命令类型
+    enum Cmd {
+        NONE = 0;
+        RESERVED = 10;
+        // todo: add user cmd
+    }
+
+    // todo: add user message
+    message Payload {
+        string payload = 1;
+    }
+}

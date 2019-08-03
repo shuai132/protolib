@@ -1,0 +1,35 @@
+syntax = "proto3";
+package proto;
+
+import "google/protobuf/any.proto";
+
+// 消息收发复用Msg类型
+message Msg {
+    uint32 seq = 1; // 消息的序列id 用于匹配消息响应
+    Type type = 2;  // 消息类型
+    google.protobuf.Any data = 3;  // 不同type、cmd有不同类型
+
+    // 当type是COMMAND时 有以下字段
+    uint32 cmd = 10;
+
+    // 当type是RESPONSE时 有以下字段
+    bool success = 100;
+
+    // 消息类型 请求/响应
+    enum Type {
+        COMMAND = 0;
+        RESPONSE = 1;
+    }
+
+    // 命令类型
+    enum Cmd {
+        NONE = 0;
+        PING = 1;
+        PONG = 2;
+    }
+
+    // for PING/PONG
+    message Payload {
+        string payload = 1;
+    }
+}
