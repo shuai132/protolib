@@ -2,6 +2,7 @@
 #include "core/ProtoUtils.h"
 #include "core/Connection.h"
 #include "proto/cpp/AppMsg.pb.h"
+#include "google/protobuf/wrappers.pb.h"
 #include "log.h"
 
 /**

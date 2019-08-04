@@ -1,7 +1,8 @@
-#include <modules/log/log.h>
 #include "Connection.h"
 #include "MsgDispatcher.h"
 #include "ProtoUtils.h"
+#include "google/protobuf/wrappers.pb.h"
+#include "log.h"
 
 void Connection::onPayload(const std::string& payload) {
     if (payloadHandle_) {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "google/protobuf/wrappers.pb.h"
 #include "proto/cpp/Msg.pb.h"
 #include "MsgDispatcher.h"
 #include "Type.h"
@@ -15,7 +14,7 @@ namespace ProtoUtils {
 static std::atomic<SeqType> MsgSeq(0);
 
 // 默认空消息 方便接口设计
-const StringValue DataNone; // NOLINT(cert-err58-cpp)
+const Any DataNone; // NOLINT(cert-err58-cpp)
 
 /**
  * 创建Cmd消息
@@ -37,16 +36,13 @@ inline Msg CreateCmdMsg(CmdType cmd, const Message& data = DataNone) {
 /**
  * 创建Rsp消息
  * @param seq 对应Cmd的seq
- * @param data Msg.data
+ * @param data 将保存在Msg.data
  * @param success 成功/失败
  * @return
  */
-template <typename T = Message>
+template <typename T,
+        typename std::enable_if<std::is_base_of<Message, T>::value && !std::is_base_of<Msg, T>::value, int>::type = 0>
 inline Msg CreateRspMsg(SeqType seq, const T& data = DataNone, bool success = true) {
-    //  data为Message类型 而不是Msg类型 防止误用
-    static_assert(std::is_base_of<Message, T>(), "data should be a Message!");
-    static_assert(!std::is_base_of<Msg, T>(), "data should not be a Msg!");
-
     Msg msg;
     msg.set_type(Msg::RESPONSE);
     msg.set_success(success);
@@ -88,8 +84,10 @@ inline std::string CreateCmdPayload(const Message &data = DataNone, const RspCal
 
 /**
  * 将Msg.data解析为指定类型的数据
+ * T为Message类型
  */
-template <typename T>
+template <typename T,
+        typename std::enable_if<std::is_base_of<Message, T>::value, int>::type = 0>
 inline T UnpackMsgData(const Msg& msg) {
     T data;
     bool ret = msg.data().UnpackTo(&data);
