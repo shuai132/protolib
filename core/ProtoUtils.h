@@ -40,8 +40,7 @@ inline Msg CreateCmdMsg(CmdType cmd, const Message& data = DataNone) {
  * @param success 成功/失败
  * @return
  */
-template <typename T,
-        typename std::enable_if<std::is_base_of<Message, T>::value && !std::is_base_of<Msg, T>::value, int>::type = 0>
+template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
 inline Msg CreateRspMsg(SeqType seq, const T& data = DataNone, bool success = true) {
     Msg msg;
     msg.set_type(Msg::RESPONSE);
@@ -72,8 +71,7 @@ inline std::string CreatePayload(const Msg& msg) {
  * @param cb
  * @return
  */
-template <CmdType cmd>
-inline std::string CreateCmdPayload(const Message &data = DataNone, const RspCallback& cb = nullptr) {
+inline std::string CreateCmdPayload(CmdType cmd, const Message& data = DataNone, const RspCallback& cb = nullptr) {
     std::string payload;
     auto msg = CreateCmdMsg(cmd, data);
     auto ret = msg.SerializeToString(&payload);
@@ -86,8 +84,7 @@ inline std::string CreateCmdPayload(const Message &data = DataNone, const RspCal
  * 将Msg.data解析为指定类型的数据
  * T为Message类型
  */
-template <typename T,
-        typename std::enable_if<std::is_base_of<Message, T>::value, int>::type = 0>
+template <typename T, ENSURE_TYPE_IS_MESSAGE(T)>
 inline T UnpackMsgData(const Msg& msg) {
     T data;
     bool ret = msg.data().UnpackTo(&data);

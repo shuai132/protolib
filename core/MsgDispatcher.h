@@ -21,7 +21,7 @@ public:
 public:
     static MsgDispatcher* getInstance();
 
-    void dispatcher(Connection* conn, const Msg& command);
+    void dispatcher(Connection* conn, const Msg& msg);
 
     void registerCmd(CmdType cmd, const CmdHandle& handle);
 

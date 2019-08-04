@@ -30,6 +30,7 @@ add_library(${PROJECT_NAME}
         core/ProtoUtils.cpp
         core/MsgDispatcher.cpp
         core/Connection.cpp
+        core/MsgManager.cpp
         )
 link_libraries(${PROJECT_NAME})
 

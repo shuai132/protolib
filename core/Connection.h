@@ -11,14 +11,15 @@ public:
     using PayloadHandle = std::function<void(const std::string& msg)>;
 
 public:
+    Connection();
+    virtual ~Connection() = default;
+
+public:
     virtual void sendPayload(const std::string& payload) = 0;
 
     inline void setPayloadHandle(const PayloadHandle& handle) {
         payloadHandle_ = handle;
     }
-
-public:
-    Connection();
 
 protected:
     void onPayload(const std::string& payload);

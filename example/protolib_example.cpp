@@ -1,74 +1,51 @@
-#include "core/MsgDispatcher.h"
-#include "core/ProtoUtils.h"
-#include "core/Connection.h"
+#include "core/MsgManager.h"
 #include "proto/cpp/AppMsg.pb.h"
-#include "google/protobuf/wrappers.pb.h"
 #include "log.h"
 
 /**
- * 命令AppMsg::HELLO 对应数据类型为AppMsg::HelloPayload
- * 此示例演示消息的收发
- * 1. 发送payload(此处为hello_payload_string)
- * 2. 接收payload并原样返回它
- * 3. 此时发送者会受到消息回复也是payload
+ * 消息收发示例
+ *
+ * 自定义的AppMsg::HELLO命令 (此示例发送和响应的类型均为StringValue)
+ * 发送 =======CmdMessageType=====> 接收
+ * 响应 <======RspMessageType====== 回复
  */
 int main() {
-    // 回环的连接 用于测试 实际场景应为具体的传输协议实现的Connection
-    LoopbackConnection connection;
+    // 回环的连接 用于测试 实际使用应为具体传输协议实现的Connection
+    auto connection = std::make_shared<LoopbackConnection>();
 
-    // 测试payload
-    const std::string hello_payload_string("hello payload");
+    // 创建MsgManager 收发消息
+    MsgManager msgManager(connection);
 
-    // 初始化连接
-    {
-        connection.setPayloadHandle([&](const std::string& payload){
-            MsgDispatcher::getInstance()->dispatcher(&connection, ProtoUtils::ParsePayload(payload));
-        });
-    }
+    // 测试所用payload
+    const std::string HELLO_PAYLOAD("hello payload");
 
     // 注册消息
     {
-        auto dispatcher = MsgDispatcher::getInstance();
-
-        dispatcher->registerCmd(AppMsg::HELLO, [&](const Msg& msg) {
-            LOGI("get HELLO");
-            auto helloPayload = ProtoUtils::UnpackMsgData<StringValue>(msg);
-            LOGI("payload:%s", helloPayload.value().c_str());
-            assert(helloPayload.value() == hello_payload_string);
-            // 原样返回payload
-            return ProtoUtils::CreateRspMsg(msg.seq(), helloPayload);
+        msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO, [&](StringValue msg) {
+            LOGI("get AppMsg::HELLO: %s", msg.value().c_str());
+            assert(msg.value() == HELLO_PAYLOAD);
+            return msg; // 原样返回
         });
     }
 
-    // 发送消息和接收响应
+    // 发送消息并设置响应回调
     {
-        // hello
-        {
-            // 构造消息
-            StringValue helloPayload;
-            helloPayload.set_value(hello_payload_string);
+        // 构造消息
+        StringValue message;
+        message.set_value(HELLO_PAYLOAD);
 
-            // 指定消息类型创建payload
-            auto payload = ProtoUtils::CreateCmdPayload<AppMsg::HELLO>(helloPayload, [&](const Msg& msg) {
-                LOGI("get resp from HELLO");
-                auto helloPayload = ProtoUtils::UnpackMsgData<StringValue>(msg);
-                LOGI("payload:%s", helloPayload.value().c_str());
-                assert(helloPayload.value() == hello_payload_string);
-            });
+        // 发送消息
+        msgManager.sendMessage<StringValue>(AppMsg::HELLO, message, [&](const StringValue& msg) {
+            LOGI("get resp from AppMsg::HELLO: %s", msg.value().c_str());
+            assert(msg.value() == HELLO_PAYLOAD);
+        });
+    }
 
-            // 发送数据
-            connection.sendPayload(payload);
-        }
-
-        // ping
-        {
-            StringValue ping;
-            ping.set_value("ping payload");
-            connection.sendPayload(ProtoUtils::CreateCmdPayload<Msg::PING>(ping, [](const Msg& msg) {
-                auto rsp = ProtoUtils::UnpackMsgData<StringValue>(msg).value();
-                LOGI("get resp from ping:%s", rsp.c_str());
-            }));
-        }
+    // ping
+    {
+        msgManager.sendPing("ping payload", [&](const std::string& msg) {
+            LOGI("get resp from ping: %s", msg.c_str());
+        });
     }
 
     return 0;
