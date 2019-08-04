@@ -21,10 +21,14 @@ int main() {
 
     // 注册消息
     {
-        msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO, [&](StringValue msg) {
+        // 注册消息 当接收到时原样返回
+        msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO, [&](const StringValue& msg) {
             LOGI("get AppMsg::HELLO: %s", msg.value().c_str());
             assert(msg.value() == HELLO_PAYLOAD);
-            return msg; // 原样返回
+            // 第一种方式: 直接返回特定信息类型 操作状态需在msg中判断 等效于第二种方式设置true
+            // return msg;
+            // 第二种方式: 顺带返回一个操作状态
+            return std::make_tuple(msg, true);
         });
     }
 

@@ -26,10 +26,23 @@ public:
      * @param handle
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
+    void registerCmd(CmdType cmd, const std::function<std::tuple<U, bool>(T&&)>& handle = nullptr) {
+        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+            const auto& rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
+            return ProtoUtils::CreateRspMsg(
+                    msg.seq(),
+                    std::get<0>(rsp),
+                    std::get<1>(rsp)
+                    );
+        });
+    }
+    template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void registerCmd(CmdType cmd, const std::function<U(T&&)>& handle = nullptr) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
-            return ProtoUtils::CreateRspMsg(msg.seq(),
-                    handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg))));
+            return ProtoUtils::CreateRspMsg(
+                    msg.seq(),
+                    handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)))
+                    );
         });
     }
 
