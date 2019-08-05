@@ -298,7 +298,7 @@ class Msg :
     kSeqFieldNumber = 1,
     kTypeFieldNumber = 2,
     kCmdFieldNumber = 10,
-    kSuccessFieldNumber = 100,
+    kSuccessFieldNumber = 20,
   };
   // .google.protobuf.Any data = 3;
   bool has_data() const;
@@ -323,7 +323,7 @@ class Msg :
   ::PROTOBUF_NAMESPACE_ID::uint32 cmd() const;
   void set_cmd(::PROTOBUF_NAMESPACE_ID::uint32 value);
 
-  // bool success = 100;
+  // bool success = 20;
   void clear_success();
   bool success() const;
   void set_success(bool value);
@@ -439,7 +439,7 @@ inline void Msg::set_cmd(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:proto.Msg.cmd)
 }
 
-// bool success = 100;
+// bool success = 20;
 inline void Msg::clear_success() {
   success_ = false;
 }

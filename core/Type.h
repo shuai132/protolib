@@ -6,6 +6,7 @@ namespace Type {
 
 using CmdType = int;
 using SeqType = uint32_t;
+using DefaultMsgDataType = google::protobuf::StringValue;
 
 using Message = google::protobuf::Message;
 
@@ -24,10 +25,17 @@ struct RspType {
 };
 
 template <typename T, ENSURE_TYPE_IS_MESSAGE(T)>
-inline static constexpr
+inline
 RspType<T>
 R(T msg, bool success) {
     return RspType<T>(msg, success);
+}
+
+inline
+RspType<DefaultMsgDataType>
+R(bool success) {
+    DefaultMsgDataType any;
+    return RspType<DefaultMsgDataType>(any, success);
 }
 
 }

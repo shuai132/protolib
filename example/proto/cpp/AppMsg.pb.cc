@@ -55,9 +55,9 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_AppMsg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\014AppMsg.proto\022\005proto\"2\n\006AppMsg\"(\n\003Cmd\022\010"
-  "\n\004NONE\020\000\022\014\n\010RESERVED\020\n\022\t\n\005HELLO\020\013b\006proto"
-  "3"
+  "\n\014AppMsg.proto\022\005proto\"W\n\006AppMsg\"M\n\003Cmd\022\010"
+  "\n\004NONE\020\000\022\014\n\010RESERVED\020\n\022\n\n\006HELLO1\020\013\022\n\n\006HE"
+  "LLO2\020\014\022\n\n\006HELLO3\020\r\022\n\n\006HELLO4\020\016b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_AppMsg_2eproto_deps[1] = {
 };
@@ -67,7 +67,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_App
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_AppMsg_2eproto_once;
 static bool descriptor_table_AppMsg_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_AppMsg_2eproto = {
-  &descriptor_table_AppMsg_2eproto_initialized, descriptor_table_protodef_AppMsg_2eproto, "AppMsg.proto", 81,
+  &descriptor_table_AppMsg_2eproto_initialized, descriptor_table_protodef_AppMsg_2eproto, "AppMsg.proto", 118,
   &descriptor_table_AppMsg_2eproto_once, descriptor_table_AppMsg_2eproto_sccs, descriptor_table_AppMsg_2eproto_deps, 1, 0,
   schemas, file_default_instances, TableStruct_AppMsg_2eproto::offsets,
   file_level_metadata_AppMsg_2eproto, 1, file_level_enum_descriptors_AppMsg_2eproto, file_level_service_descriptors_AppMsg_2eproto,
@@ -85,6 +85,9 @@ bool AppMsg_Cmd_IsValid(int value) {
     case 0:
     case 10:
     case 11:
+    case 12:
+    case 13:
+    case 14:
       return true;
     default:
       return false;
@@ -94,7 +97,10 @@ bool AppMsg_Cmd_IsValid(int value) {
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 constexpr AppMsg_Cmd AppMsg::NONE;
 constexpr AppMsg_Cmd AppMsg::RESERVED;
-constexpr AppMsg_Cmd AppMsg::HELLO;
+constexpr AppMsg_Cmd AppMsg::HELLO1;
+constexpr AppMsg_Cmd AppMsg::HELLO2;
+constexpr AppMsg_Cmd AppMsg::HELLO3;
+constexpr AppMsg_Cmd AppMsg::HELLO4;
 constexpr AppMsg_Cmd AppMsg::Cmd_MIN;
 constexpr AppMsg_Cmd AppMsg::Cmd_MAX;
 constexpr int AppMsg::Cmd_ARRAYSIZE;

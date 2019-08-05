@@ -13,7 +13,7 @@ message Msg {
     uint32 cmd = 10;
 
     // 当type是RESPONSE时 有以下字段
-    bool success = 100;
+    bool success = 20;
 
     // 消息类型 请求/响应
     enum Type {

@@ -21,36 +21,76 @@ int main() {
     // 测试所用payload
     const std::string HELLO_PAYLOAD("hello payload");
 
-    // 注册消息
+    // 注册和发送消息
+    // 此处收发类型均为StringValue 实际场景可为其他自定义的protobuf的Message类型
     {
-        // 注册消息 当接收到时原样返回
-        msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO, [&](StringValue msg) {
-            LOGI("get AppMsg::HELLO: %s", msg.value().c_str());
-            assert(msg.value() == HELLO_PAYLOAD);
-            // 第一种方式: 直接返回特定信息类型 操作状态需在msg中判断 等效于第二种方式设置true
-            // return msg;
-            // 第二种方式: 顺带返回一个操作状态
-            return R(msg, true);
-        });
-    }
+        // 待测试消息
+        StringValue message_hello;
+        message_hello.set_value(HELLO_PAYLOAD);
 
-    // 发送消息并设置响应回调
-    {
-        // 构造消息
-        StringValue message;
-        message.set_value(HELLO_PAYLOAD);
+        // 有以下几种方式 标题描述是针对注册端
+        // 1. 不接收参数 返回操作状态bool值
+        // 用于简单控制
+        {
+            msgManager.registerCmd(AppMsg::HELLO1, []() {
+                LOGI("get AppMsg::HELLO1:");
+                return true;
+            });
 
-        // 发送消息
-        msgManager.sendMessage<StringValue>(AppMsg::HELLO, message, [&](StringValue msg) {
-            LOGI("get resp from AppMsg::HELLO: %s", msg.value().c_str());
-            assert(msg.value() == HELLO_PAYLOAD);
-        });
+            // 发送消息
+            // 1. 只发送不管返回
+            msgManager.sendMessage(AppMsg::HELLO1);
+            // 2. 发送并获取返回状态
+            msgManager.sendMessage(AppMsg::HELLO1, [](bool success){
+                LOGI("get rsp from AppMsg::HELLO1: success=%s", success ? "true" : "false");
+            });
+        }
+
+        // 2. 不接收参数 返回自定义消息和操作状态
+        // 常用于GET行为
+        {
+            msgManager.registerCmd<StringValue>(AppMsg::HELLO2, [&]() {
+                LOGI("get AppMsg::HELLO2:");
+                return R(message_hello, true);
+            });
+            msgManager.sendMessage<StringValue>(AppMsg::HELLO2, [&](RspType<StringValue> rsp) {
+                LOGI("get rsp from AppMsg::HELLO2: success=%s, msg=%s", rsp.success ? "true" : "false", rsp.message.value().c_str());
+                assert(rsp.message.value() == HELLO_PAYLOAD);
+            });
+        }
+
+        // 3. 接收参数 返回操作状态
+        // 常用于SET行为
+        {
+            msgManager.registerCmd<StringValue>(AppMsg::HELLO3, [&](StringValue msg) {
+                LOGI("get AppMsg::HELLO3: %s", msg.value().c_str());
+                assert(msg.value() == HELLO_PAYLOAD);
+                return R(true);
+            });
+            msgManager.sendMessage(AppMsg::HELLO3, message_hello, [](bool success) {
+                LOGI("get rsp from AppMsg::HELLO3: success=%s", success ? "true" : "false");
+            });
+        }
+        // 4. 接收参数 且返回自定义消息和操作状态
+        // 用于复杂操作场景
+        {
+            msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO4, [&](StringValue msg) {
+                LOGI("get AppMsg::HELLO4: %s", msg.value().c_str());
+                assert(msg.value() == HELLO_PAYLOAD);
+                return R(msg, true);
+            });
+            msgManager.sendMessage<StringValue>(AppMsg::HELLO4, message_hello, [&](RspType<StringValue> rsp) {
+                LOGI("get rsp from AppMsg::HELLO4: success=%s, msg=%s", rsp.success ? "true" : "false", rsp.message.value().c_str());
+                assert(rsp.message.value() == HELLO_PAYLOAD);
+            });
+        }
     }
 
     // ping
     {
-        msgManager.sendPing("ping payload", [&](const std::string& msg) {
-            LOGI("get resp from ping: %s", msg.c_str());
+        msgManager.sendPing(HELLO_PAYLOAD, [&](const std::string& payload) {
+            LOGI("get rsp from ping: %s", payload.c_str());
+            assert(payload == HELLO_PAYLOAD);
         });
     }
 

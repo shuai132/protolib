@@ -65,7 +65,7 @@ const char descriptor_table_protodef_Msg_2eproto[] PROTOBUF_SECTION_VARIABLE(pro
   "\n\tMsg.proto\022\005proto\032\031google/protobuf/any."
   "proto\"\273\001\n\003Msg\022\013\n\003seq\030\001 \001(\r\022\035\n\004type\030\002 \001(\016"
   "2\017.proto.Msg.Type\022\"\n\004data\030\003 \001(\0132\024.google"
-  ".protobuf.Any\022\013\n\003cmd\030\n \001(\r\022\017\n\007success\030d "
+  ".protobuf.Any\022\013\n\003cmd\030\n \001(\r\022\017\n\007success\030\024 "
   "\001(\010\"!\n\004Type\022\013\n\007COMMAND\020\000\022\014\n\010RESPONSE\020\001\"#"
   "\n\003Cmd\022\010\n\004NONE\020\000\022\010\n\004PING\020\001\022\010\n\004PONG\020\002b\006pro"
   "to3"
@@ -252,9 +252,9 @@ const char* Msg::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bool success = 100;
-      case 100:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+      // bool success = 20;
+      case 20:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 160)) {
           success_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -340,9 +340,9 @@ bool Msg::MergePartialFromCodedStream(
         break;
       }
 
-      // bool success = 100;
-      case 100: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (800 & 0xFF)) {
+      // bool success = 20;
+      case 20: {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (160 & 0xFF)) {
 
           DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
                    bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL>(
@@ -402,9 +402,9 @@ void Msg::SerializeWithCachedSizes(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32(10, this->cmd(), output);
   }
 
-  // bool success = 100;
+  // bool success = 20;
   if (this->success() != 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBool(100, this->success(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBool(20, this->success(), output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -443,9 +443,9 @@ void Msg::SerializeWithCachedSizes(
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(10, this->cmd(), target);
   }
 
-  // bool success = 100;
+  // bool success = 20;
   if (this->success() != 0) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(100, this->success(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(20, this->success(), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -496,7 +496,7 @@ size_t Msg::ByteSizeLong() const {
         this->cmd());
   }
 
-  // bool success = 100;
+  // bool success = 20;
   if (this->success() != 0) {
     total_size += 2 + 1;
   }

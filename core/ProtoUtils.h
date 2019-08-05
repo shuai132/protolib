@@ -16,7 +16,7 @@ using namespace Type;
 static std::atomic<SeqType> MsgSeq(0);
 
 // 默认空消息 方便接口设计
-const Any DataNone; // NOLINT(cert-err58-cpp)
+const DefaultMsgDataType DataNone; // NOLINT(cert-err58-cpp)
 
 /**
  * 创建Cmd消息

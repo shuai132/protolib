@@ -26,35 +26,62 @@ public:
      * @tparam T 接收消息的类型 这将决定解析行为 与发送时参数一致
      * @tparam U 返回消息结果的类型 与发送时回调参数一致
      * @param cmd
-     * @param handle 接收参数使用(const YourType& msg)或者(YourType msg)均可 基于内部移动语义后者不会发生拷贝而影响效率
-     *               返回值可返回Type::R(Message, bool)或者Message
+     * @param handle handle需接收数据和返回数据时使用 如不需要接收或不需要返回等情况 使用其他的重载函数
+     *               接收参数使用(const YourType& msg)或(YourType msg)均可 基于内部移动语义后者不会发生拷贝而影响效率
+     *               返回值类型Type::RspType<T> 可使用Type::R(Message, bool)构造
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
-    void registerCmd(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle = nullptr) {
+    void registerCmd(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
-            auto rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
+            Type::RspType<U> rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
                     rsp.message,
                     rsp.success
-                    );
+            );
         });
     }
-    // 同上 此为单返回值实现
-    template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
-    void registerCmd(CmdType cmd, const std::function<U(T&&)>& handle = nullptr) {
+    // 同上 handle不需接收数据 只返回操作状态
+    template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
+    void registerCmd(CmdType cmd, const std::function<Type::RspType<StringValue>(T&&)>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+            Type::RspType<StringValue> rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
-                    handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)))
+                    ProtoUtils::DataNone,
+                    rsp.success
                     );
         });
     }
+    // 同上 handle不需接收数据 只返回操作状态
+    void registerCmd(CmdType cmd, const std::function<bool()>& handle) {
+        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+            bool success = handle();
+            return ProtoUtils::CreateRspMsg(
+                    msg.seq(),
+                    ProtoUtils::DataNone,
+                    success
+            );
+        });
+    }
+    // 同上 handle不需接收数据 需返回数据时使用
+    template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
+    void registerCmd(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
+        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+            Type::RspType<T> rsp = handle();
+            return ProtoUtils::CreateRspMsg(
+                    msg.seq(),
+                    rsp.message,
+                    rsp.success
+            );
+        });
+    }
+
 
     /**
      * 发送消息并设定回调
      */
-    void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
+    inline void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
         // 指定消息类型创建payload
         auto payload = ProtoUtils::CreateCmdPayload(cmd, message, cb);
         conn_->sendPayload(payload);
@@ -65,20 +92,37 @@ public:
      * @tparam T 消息回复数据载体的类型
      * @param cmd 消息类型
      * @param message 消息数据
-     * @param cb 消息回复的回调
+     * @param cb 消息回复的回调 参数可为(Message msg, bool success)或(Message msg)或(bool success)
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone,
-            const std::function<void(T&&)>& cb = nullptr) {
+    inline void sendMessage(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb = nullptr) {
+        if (cb == nullptr) {
+            sendMessage(cmd, message);
+            return;
+        }
         sendMessage(cmd, message, [&](const Msg& msg) {
-            cb(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
+            cb(Type::RspType<T>(ProtoUtils::UnpackMsgData<T>(msg), msg.success()));
         });
+    }
+    template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
+    inline void sendMessage(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
+        sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg& msg) {
+            cb(Type::RspType<T>(ProtoUtils::UnpackMsgData<T>(msg), msg.success()));
+        });
+    }
+    inline void sendMessage(CmdType cmd, const Message& message, const std::function<void(bool)>& cb) {
+        sendMessage(cmd, message, [&](const Msg& msg) {
+            cb(msg.success());
+        });
+    }
+    inline void sendMessage(CmdType cmd, const std::function<void(bool)>& cb) {
+        sendMessage(cmd, ProtoUtils::DataNone, cb);
     }
 
     /**
      * 发送string类型数据 将使用StringValue作为载体
      */
-    void sendMessage(CmdType cmd, const std::string& message, const RspCallback& cb = nullptr) {
+    inline void sendMessage(CmdType cmd, const std::string& message, const RspCallback& cb = nullptr) {
         StringValue stringValue;
         stringValue.set_value(message);
         sendMessage(cmd, stringValue, cb);
@@ -89,7 +133,7 @@ public:
      * @param payload
      * @param cb
      */
-    void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr) {
+    inline void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr) {
         sendMessage(Msg::PING, payload, [&](const Msg& msg) {
             cb(ProtoUtils::UnpackMsgData<StringValue>(msg).value());
         });
