@@ -84,9 +84,9 @@ inline std::string CreateCmdPayload(CmdType cmd, const Message& data = DataNone,
 
 /**
  * 将Msg.data解析为指定类型的数据
- * T为Message类型
+ * T为Message类型 但认为不是Msg类型 防止误用
  */
-template <typename T, ENSURE_TYPE_IS_MESSAGE(T)>
+template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
 inline T UnpackMsgData(const Msg& msg) {
     T data;
     bool ret = msg.data().UnpackTo(&data);

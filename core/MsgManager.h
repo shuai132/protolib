@@ -8,6 +8,13 @@
  * 消息管理
  * 1. 封装操作细节以方便发送接收消息
  * 2. 持有一个连接 收发均基于此连接
+ * 为了方便使用，消息分为以下几种模式:
+ * 1. Ctrl 用于控制等简单命令
+ * 3. Post 用于收发数据
+ * 2. Get  用于获取数据(subscriber --> sender)
+ * 4. Put  用于发送数据(sender --> subscriber)
+ * 5. Set  用于设置场景 发送数据 等价于Put
+ * 对于注册的回调，接收参数使用(const YourType& msg)或(YourType msg)均可，基于内部移动语义后者不会发生拷贝而影响效率。
  */
 class MsgManager {
 public:
@@ -22,15 +29,11 @@ public:
 
 public:
     /**
-     * 注册命令并设置接收回调
-     * 最通用的一个实现，命名为Post，其他实现如Set、Get等都是其特殊情况。
-     *
-     * @tparam T 接收消息的类型 这将决定解析行为 与发送时参数一致
-     * @tparam U 返回消息结果的类型 与发送时回调参数一致
+     * 注册Post命令 用于收发数据
+     * @tparam T 接收消息的类型 这将决定解析行为 与发送时"发送参数类型"一致
+     * @tparam U 返回消息结果的类型 与发送时"回调参数类型"一致
      * @param cmd
-     * @param handle handle需接收数据和返回数据时使用 如不需要接收或不需要返回等情况 使用其他的重载函数
-     *               接收参数使用(const YourType& msg)或(YourType msg)均可 基于内部移动语义后者不会发生拷贝而影响效率
-     *               返回值类型Type::RspType<T> 可使用Type::R(Message, bool)构造
+     * @param handle 接收T类型消息 返回Type::RspType<T>类型消息作为回复 可使用Type::R(Message, bool)构造 也可直接返回Message或bool
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void registerPost(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
@@ -43,19 +46,38 @@ public:
             );
         });
     }
-    // handle不需接收数据 只返回操作状态
+
+    /**
+     * 注册Put命令
+     * @tparam T 接收消息的类型
+     * @param cmd
+     * @param handle 接收数据 返回操作状态
+     */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    void registerSet(CmdType cmd, const std::function<bool(T&&)>& handle) {
+    void registerPut(CmdType cmd, const std::function<bool(T&&)>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
             bool success = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
                     ProtoUtils::DataNone,
                     success
-                    );
+            );
         });
     }
-    // handle不需接收数据 只返回操作状态
+
+    /**
+     * 注册Set命令 等价于Put
+     */
+    template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
+    inline void registerSet(CmdType cmd, const std::function<bool(T&&)>& handle) {
+        registerPut(cmd, handle);
+    }
+
+    /**
+     * 注册Ctrl命令
+     * @param cmd
+     * @param handle 不接收参数 返回操作状态
+     */
     void registerCtrl(CmdType cmd, const std::function<bool()>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
             bool success = handle();
@@ -66,11 +88,12 @@ public:
             );
         });
     }
+
     /**
-     *
-     * @tparam T
+     * 注册Get命令
+     * @tparam T 返回给对方的数据类型
      * @param cmd
-     * @param handle handle不需接收数据但需返回数据时使用 返回R(msg, true)形式
+     * @param handle 不接收参数 返回R(msg, true)形式
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void registerGet(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
@@ -83,57 +106,68 @@ public:
             );
         });
     }
-    // 同上 handle可直接返回数据 状态自动设置为true
+
+    /**
+     * 发送Post命令
+     * @tparam T 消息回复数据载体的类型
+     * @param cmd 消息类型
+     * @param message 消息数据
+     * @param cb 消息回调 参数类型Type::RspType<T>
+     */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    void registerGet(CmdType cmd, const std::function<T()>& handle) {
-        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
-            T rsp = handle();
-            return ProtoUtils::CreateRspMsg(
-                    msg.seq(),
-                    rsp,
-                    true
-            );
+    inline void sendPost(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb) {
+        sendMessage(cmd, message, [&](const Msg& msg) {
+            cb(std::forward<Type::RspType<T>>(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success())));
         });
     }
 
     /**
-     * 发送消息
-     * @tparam T 消息回复数据载体的类型
-     * @param cmd 消息类型
-     * @param message 消息数据
-     * @param cb 消息回复的回调 参数可为(Message msg, bool success)或(Message msg)或(bool success)
+     * 发送Get命令
+     * @tparam T 接收消息的类型
+     * @param cmd
+     * @param cb 消息回调 参数类型Type::RspType<T>
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    inline void sendPost(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb = nullptr) {
-        if (cb == nullptr) {
-            sendMessage(cmd, message);
-            return;
-        }
-        sendMessage(cmd, message, [&](const Msg &msg) {
-            cb(std::forward<Type::RspType<T>>(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success())));
-        });
-    }
-    template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     inline void sendGet(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
-        sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg &msg) {
+        sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg& msg) {
             cb(std::forward<Type::RspType<T>>(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success())));
         });
     }
-    inline void sendSet(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr) {
-        sendMessage(cmd, message, [&](const Msg &msg) {
+
+    /**
+     * 发送Put命令
+     * @param cmd
+     * @param message
+     * @param cb 消息回调 对方响应是否成功
+     */
+    inline void sendPut(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr) {
+        sendMessage(cmd, message, [&](const Msg& msg) {
             if (cb != nullptr) {
                 cb(msg.success());
             }
         });
     }
+
+    /**
+     * 发送Set命令 等价于Put
+     */
+    inline void sendSet(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr) {
+        sendPut(cmd, message, cb);
+    }
+
+    /**
+     * 注册控制命令
+     * @param cmd
+     * @param cb 控制回调 响应是否成功
+     */
     inline void sendCtrl(CmdType cmd, const std::function<void(bool)>& cb = nullptr) {
         sendSet(cmd, ProtoUtils::DataNone, cb);
     }
 
     /**
-     * 可作为连通性的测试 会原样返回payload 默认为空
-     * @param payload
-     * @param cb
+     * 可作为连通性的测试 会原样返回payload
+     * @param payload 负载数据默认为空
+     * @param cb 参数类型std::string
      */
     inline void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr) {
         StringValue stringValue;
@@ -146,6 +180,9 @@ public:
 private:
     /**
      * 发送消息并设定回调
+     * @param cmd
+     * @param message
+     * @param cb
      */
     inline void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
         // 指定消息类型创建payload

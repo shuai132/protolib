@@ -22,20 +22,17 @@ struct RspType {
     bool success;
 
     RspType(T m, bool s) : message(std::move(m)), success(s) {}
+
+    RspType(bool s) : message(DefaultMsgDataType()), success(s) {} // NOLINT(google-explicit-constructor)
+
+    RspType(T m) : message(std::move(m)), success(true) {} // NOLINT(google-explicit-constructor)
 };
 
 template <typename T, ENSURE_TYPE_IS_MESSAGE(T)>
 inline
 RspType<T>
 R(T msg, bool success) {
-    return RspType<T>(msg, success);
-}
-
-inline
-RspType<DefaultMsgDataType>
-R(bool success) {
-    DefaultMsgDataType any;
-    return RspType<DefaultMsgDataType>(any, success);
+    return RspType<T>(std::move(msg), success);
 }
 
 }
