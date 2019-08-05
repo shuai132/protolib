@@ -32,7 +32,7 @@ int main() {
         // 1. 不接收参数 返回操作状态bool值
         // 用于简单控制
         {
-            msgManager.registerCmd(AppMsg::HELLO1, []() {
+            msgManager.registerCtrl(AppMsg::HELLO1, []() {
                 LOGI("get AppMsg::HELLO1:");
                 return true;
             });
@@ -49,9 +49,9 @@ int main() {
         // 2. 不接收参数 返回自定义消息和操作状态
         // 常用于GET行为
         {
-            msgManager.registerCmd<StringValue>(AppMsg::HELLO2, [&]() {
+            msgManager.registerGet<StringValue>(AppMsg::HELLO2, [&]() {
                 LOGI("get AppMsg::HELLO2:");
-                return R(message_hello, true);
+                return R(message_hello, true); // 也可简写为 return message_hello; 默认为true
             });
             msgManager.sendGet<StringValue>(AppMsg::HELLO2, [&](RspType<StringValue> rsp) {
                 LOGI("get rsp from AppMsg::HELLO2: success=%s, msg=%s", rsp.success ? "true" : "false",
@@ -63,10 +63,10 @@ int main() {
         // 3. 接收参数 返回操作状态
         // 常用于SET行为
         {
-            msgManager.registerCmd<StringValue>(AppMsg::HELLO3, [&](StringValue msg) {
+            msgManager.registerSet<StringValue>(AppMsg::HELLO3, [&](StringValue msg) {
                 LOGI("get AppMsg::HELLO3: %s", msg.value().c_str());
                 assert(msg.value() == HELLO_PAYLOAD);
-                return R(true);
+                return true;
             });
             msgManager.sendSet(AppMsg::HELLO3, message_hello, [](bool success) {
                 LOGI("get rsp from AppMsg::HELLO3: success=%s", success ? "true" : "false");
@@ -75,7 +75,7 @@ int main() {
         // 4. 接收参数 且返回自定义消息和操作状态
         // 用于复杂操作场景 收发消息 类似POST行为
         {
-            msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO4, [&](StringValue msg) {
+            msgManager.registerPost<StringValue, StringValue>(AppMsg::HELLO4, [&](StringValue msg) {
                 LOGI("get AppMsg::HELLO4: %s", msg.value().c_str());
                 assert(msg.value() == HELLO_PAYLOAD);
                 return R(msg, true);

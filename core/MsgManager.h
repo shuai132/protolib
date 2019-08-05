@@ -23,6 +23,8 @@ public:
 public:
     /**
      * 注册命令并设置接收回调
+     * 最通用的一个实现，命名为Post，其他实现如Set、Get等都是其特殊情况。
+     *
      * @tparam T 接收消息的类型 这将决定解析行为 与发送时参数一致
      * @tparam U 返回消息结果的类型 与发送时回调参数一致
      * @param cmd
@@ -31,7 +33,7 @@ public:
      *               返回值类型Type::RspType<T> 可使用Type::R(Message, bool)构造
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
-    void registerCmd(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
+    void registerPost(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
             Type::RspType<U> rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
             return ProtoUtils::CreateRspMsg(
@@ -41,20 +43,20 @@ public:
             );
         });
     }
-    // 同上 handle不需接收数据 只返回操作状态
+    // handle不需接收数据 只返回操作状态
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    void registerCmd(CmdType cmd, const std::function<Type::RspType<StringValue>(T&&)>& handle) {
+    void registerSet(CmdType cmd, const std::function<bool(T&&)>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
-            Type::RspType<StringValue> rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
+            bool success = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
                     ProtoUtils::DataNone,
-                    rsp.success
+                    success
                     );
         });
     }
-    // 同上 handle不需接收数据 只返回操作状态
-    void registerCmd(CmdType cmd, const std::function<bool()>& handle) {
+    // handle不需接收数据 只返回操作状态
+    void registerCtrl(CmdType cmd, const std::function<bool()>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
             bool success = handle();
             return ProtoUtils::CreateRspMsg(
@@ -64,15 +66,32 @@ public:
             );
         });
     }
-    // 同上 handle不需接收数据 需返回数据时使用
+    /**
+     *
+     * @tparam T
+     * @param cmd
+     * @param handle handle不需接收数据但需返回数据时使用 返回R(msg, true)形式
+     */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    void registerCmd(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
+    void registerGet(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
             Type::RspType<T> rsp = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
                     rsp.message,
                     rsp.success
+            );
+        });
+    }
+    // 同上 handle可直接返回数据 状态自动设置为true
+    template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
+    void registerGet(CmdType cmd, const std::function<T()>& handle) {
+        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+            T rsp = handle();
+            return ProtoUtils::CreateRspMsg(
+                    msg.seq(),
+                    rsp,
+                    true
             );
         });
     }
@@ -91,13 +110,13 @@ public:
             return;
         }
         sendMessage(cmd, message, [&](const Msg &msg) {
-            cb(Type::RspType<T>(ProtoUtils::UnpackMsgData<T>(msg), msg.success()));
+            cb(std::forward<Type::RspType<T>>(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success())));
         });
     }
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     inline void sendGet(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
         sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg &msg) {
-            cb(Type::RspType<T>(ProtoUtils::UnpackMsgData<T>(msg), msg.success()));
+            cb(std::forward<Type::RspType<T>>(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success())));
         });
     }
     inline void sendSet(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr) {
