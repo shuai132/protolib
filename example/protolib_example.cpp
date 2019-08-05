@@ -39,9 +39,9 @@ int main() {
 
             // 发送消息
             // 1. 只发送不管返回
-            msgManager.sendMessage(AppMsg::HELLO1);
+            msgManager.sendCtrl(AppMsg::HELLO1);
             // 2. 发送并获取返回状态
-            msgManager.sendMessage(AppMsg::HELLO1, [](bool success){
+            msgManager.sendCtrl(AppMsg::HELLO1, [](bool success) {
                 LOGI("get rsp from AppMsg::HELLO1: success=%s", success ? "true" : "false");
             });
         }
@@ -53,8 +53,9 @@ int main() {
                 LOGI("get AppMsg::HELLO2:");
                 return R(message_hello, true);
             });
-            msgManager.sendMessage<StringValue>(AppMsg::HELLO2, [&](RspType<StringValue> rsp) {
-                LOGI("get rsp from AppMsg::HELLO2: success=%s, msg=%s", rsp.success ? "true" : "false", rsp.message.value().c_str());
+            msgManager.sendGet<StringValue>(AppMsg::HELLO2, [&](RspType<StringValue> rsp) {
+                LOGI("get rsp from AppMsg::HELLO2: success=%s, msg=%s", rsp.success ? "true" : "false",
+                     rsp.message.value().c_str());
                 assert(rsp.message.value() == HELLO_PAYLOAD);
             });
         }
@@ -67,20 +68,21 @@ int main() {
                 assert(msg.value() == HELLO_PAYLOAD);
                 return R(true);
             });
-            msgManager.sendMessage(AppMsg::HELLO3, message_hello, [](bool success) {
+            msgManager.sendSet(AppMsg::HELLO3, message_hello, [](bool success) {
                 LOGI("get rsp from AppMsg::HELLO3: success=%s", success ? "true" : "false");
             });
         }
         // 4. 接收参数 且返回自定义消息和操作状态
-        // 用于复杂操作场景
+        // 用于复杂操作场景 收发消息 类似POST行为
         {
             msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO4, [&](StringValue msg) {
                 LOGI("get AppMsg::HELLO4: %s", msg.value().c_str());
                 assert(msg.value() == HELLO_PAYLOAD);
                 return R(msg, true);
             });
-            msgManager.sendMessage<StringValue>(AppMsg::HELLO4, message_hello, [&](RspType<StringValue> rsp) {
-                LOGI("get rsp from AppMsg::HELLO4: success=%s, msg=%s", rsp.success ? "true" : "false", rsp.message.value().c_str());
+            msgManager.sendPost<StringValue>(AppMsg::HELLO4, message_hello, [&](RspType<StringValue> rsp) {
+                LOGI("get rsp from AppMsg::HELLO4: success=%s, msg=%s", rsp.success ? "true" : "false",
+                     rsp.message.value().c_str());
                 assert(rsp.message.value() == HELLO_PAYLOAD);
             });
         }

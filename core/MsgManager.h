@@ -77,16 +77,6 @@ public:
         });
     }
 
-
-    /**
-     * 发送消息并设定回调
-     */
-    inline void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
-        // 指定消息类型创建payload
-        auto payload = ProtoUtils::CreateCmdPayload(cmd, message, cb);
-        conn_->sendPayload(payload);
-    }
-
     /**
      * 发送消息
      * @tparam T 消息回复数据载体的类型
@@ -95,37 +85,30 @@ public:
      * @param cb 消息回复的回调 参数可为(Message msg, bool success)或(Message msg)或(bool success)
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    inline void sendMessage(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb = nullptr) {
+    inline void sendPost(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb = nullptr) {
         if (cb == nullptr) {
             sendMessage(cmd, message);
             return;
         }
-        sendMessage(cmd, message, [&](const Msg& msg) {
+        sendMessage(cmd, message, [&](const Msg &msg) {
             cb(Type::RspType<T>(ProtoUtils::UnpackMsgData<T>(msg), msg.success()));
         });
     }
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    inline void sendMessage(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
-        sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg& msg) {
+    inline void sendGet(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
+        sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg &msg) {
             cb(Type::RspType<T>(ProtoUtils::UnpackMsgData<T>(msg), msg.success()));
         });
     }
-    inline void sendMessage(CmdType cmd, const Message& message, const std::function<void(bool)>& cb) {
-        sendMessage(cmd, message, [&](const Msg& msg) {
-            cb(msg.success());
+    inline void sendSet(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr) {
+        sendMessage(cmd, message, [&](const Msg &msg) {
+            if (cb != nullptr) {
+                cb(msg.success());
+            }
         });
     }
-    inline void sendMessage(CmdType cmd, const std::function<void(bool)>& cb) {
-        sendMessage(cmd, ProtoUtils::DataNone, cb);
-    }
-
-    /**
-     * 发送string类型数据 将使用StringValue作为载体
-     */
-    inline void sendMessage(CmdType cmd, const std::string& message, const RspCallback& cb = nullptr) {
-        StringValue stringValue;
-        stringValue.set_value(message);
-        sendMessage(cmd, stringValue, cb);
+    inline void sendCtrl(CmdType cmd, const std::function<void(bool)>& cb = nullptr) {
+        sendSet(cmd, ProtoUtils::DataNone, cb);
     }
 
     /**
@@ -134,9 +117,21 @@ public:
      * @param cb
      */
     inline void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr) {
-        sendMessage(Msg::PING, payload, [&](const Msg& msg) {
+        StringValue stringValue;
+        stringValue.set_value(payload);
+        sendMessage(Msg::PING, stringValue, [&](const Msg& msg) {
             cb(ProtoUtils::UnpackMsgData<StringValue>(msg).value());
         });
+    }
+
+private:
+    /**
+     * 发送消息并设定回调
+     */
+    inline void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
+        // 指定消息类型创建payload
+        auto payload = ProtoUtils::CreateCmdPayload(cmd, message, cb);
+        conn_->sendPayload(payload);
     }
 
 private:
