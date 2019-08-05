@@ -12,6 +12,9 @@ using namespace google::protobuf;
  * 注册消息到指定命令
  */
 class MsgDispatcher {
+    using SeqType = Type::SeqType;
+    using CmdType = Type::CmdType;
+
 public:
     using CmdHandle = std::function<Msg(const Msg&)>;
     using CmdHandleMap = std::map<CmdType, CmdHandle>;

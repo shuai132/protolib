@@ -4,11 +4,13 @@
 #include "MsgDispatcher.h"
 #include "Type.h"
 
-using namespace google::protobuf;
-using namespace proto;
 using RspCallback = MsgDispatcher::RspHandle;
 
 namespace ProtoUtils {
+
+using namespace google::protobuf;
+using namespace proto;
+using namespace Type;
 
 // 消息的序列号 作为消息ID
 static std::atomic<SeqType> MsgSeq(0);

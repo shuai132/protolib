@@ -2,6 +2,8 @@
 #include "proto/cpp/AppMsg.pb.h"
 #include "log.h"
 
+using namespace Type;
+
 /**
  * 消息收发示例
  *
@@ -28,7 +30,7 @@ int main() {
             // 第一种方式: 直接返回特定信息类型 操作状态需在msg中判断 等效于第二种方式设置true
             // return msg;
             // 第二种方式: 顺带返回一个操作状态
-            return std::make_tuple(msg, true);
+            return R(msg, true);
         });
     }
 

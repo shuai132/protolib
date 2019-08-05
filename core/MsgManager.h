@@ -11,6 +11,9 @@
  */
 class MsgManager {
 public:
+    using SeqType = Type::SeqType;
+    using CmdType = Type::CmdType;
+
     using CmdHandle = MsgDispatcher::CmdHandle;
     using PingCallback = std::function<void(const std::string&)>;
 
@@ -26,13 +29,13 @@ public:
      * @param handle
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
-    void registerCmd(CmdType cmd, const std::function<std::tuple<U, bool>(T&&)>& handle = nullptr) {
+    void registerCmd(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle = nullptr) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
-            const auto& rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
+            auto rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
-                    std::get<0>(rsp),
-                    std::get<1>(rsp)
+                    rsp.message,
+                    rsp.success
                     );
         });
     }
