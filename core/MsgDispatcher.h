@@ -16,15 +16,15 @@ class MsgDispatcher {
     using CmdType = Type::CmdType;
 
 public:
-    using CmdHandle = std::function<Msg(const Msg&)>;
+    using CmdHandle = std::function<Msg(Msg&&)>;
     using CmdHandleMap = std::map<CmdType, CmdHandle>;
-    using RspHandle = std::function<void(const Msg&)>;
+    using RspHandle = std::function<void(Msg&&)>;
     using RspHandleMap = std::map<SeqType, RspHandle>;
 
 public:
     static MsgDispatcher* getInstance();
 
-    void dispatcher(Connection* conn, const Msg& msg);
+    void dispatcher(Connection* conn, Msg&& msg);
 
     void registerCmd(CmdType cmd, const CmdHandle& handle);
 

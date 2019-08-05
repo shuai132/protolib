@@ -26,7 +26,8 @@ public:
      * @tparam T 接收消息的类型 这将决定解析行为 与发送时参数一致
      * @tparam U 返回消息结果的类型 与发送时回调参数一致
      * @param cmd
-     * @param handle
+     * @param handle 接收参数使用(const YourType& msg)或者(YourType msg)均可 基于内部移动语义后者不会发生拷贝而影响效率
+     *               返回值可返回Type::R(Message, bool)或者Message
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void registerCmd(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle = nullptr) {
@@ -39,6 +40,7 @@ public:
                     );
         });
     }
+    // 同上 此为单返回值实现
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void registerCmd(CmdType cmd, const std::function<U(T&&)>& handle = nullptr) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {

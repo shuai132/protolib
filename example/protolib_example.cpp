@@ -24,7 +24,7 @@ int main() {
     // 注册消息
     {
         // 注册消息 当接收到时原样返回
-        msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO, [&](const StringValue& msg) {
+        msgManager.registerCmd<StringValue, StringValue>(AppMsg::HELLO, [&](StringValue msg) {
             LOGI("get AppMsg::HELLO: %s", msg.value().c_str());
             assert(msg.value() == HELLO_PAYLOAD);
             // 第一种方式: 直接返回特定信息类型 操作状态需在msg中判断 等效于第二种方式设置true
@@ -41,7 +41,7 @@ int main() {
         message.set_value(HELLO_PAYLOAD);
 
         // 发送消息
-        msgManager.sendMessage<StringValue>(AppMsg::HELLO, message, [&](const StringValue& msg) {
+        msgManager.sendMessage<StringValue>(AppMsg::HELLO, message, [&](StringValue msg) {
             LOGI("get resp from AppMsg::HELLO: %s", msg.value().c_str());
             assert(msg.value() == HELLO_PAYLOAD);
         });

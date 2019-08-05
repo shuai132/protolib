@@ -7,7 +7,7 @@ MsgDispatcher* MsgDispatcher::getInstance() {
     return &dispatcher;
 }
 
-void MsgDispatcher::dispatcher(Connection* conn, const Msg& msg) {
+void MsgDispatcher::dispatcher(Connection* conn, Msg&& msg) {
     switch (msg.type()) {
         case Msg::COMMAND:
         {
@@ -21,7 +21,7 @@ void MsgDispatcher::dispatcher(Connection* conn, const Msg& msg) {
                 return;
             }
             auto fn = (*iter).second;
-            auto resp = fn(msg);
+            auto resp = fn(std::move(msg));
             conn->sendPayload(ProtoUtils::CreatePayload(resp));
         } break;
 
@@ -35,7 +35,7 @@ void MsgDispatcher::dispatcher(Connection* conn, const Msg& msg) {
             }
             auto cb = (*iter).second;
             assert(cb);
-            cb(msg);
+            cb(std::move(msg));
             rspHandleMap_.erase(iter);
             LOGD("rspHandleMap_.size=%ld", rspHandleMap_.size());
         } break;
@@ -55,6 +55,6 @@ void MsgDispatcher::registerRsp(SeqType seq, const MsgDispatcher::RspHandle& han
     rspHandleMap_[seq] = handle;
 }
 
-void MsgDispatcher::registerRsp(const Msg &msg, const MsgDispatcher::RspHandle &handle) {
+void MsgDispatcher::registerRsp(const Msg& msg, const MsgDispatcher::RspHandle& handle) {
     registerRsp(msg.seq(), handle);
 }
