@@ -1,10 +1,7 @@
 #pragma once
 
 #include "proto/cpp/Msg.pb.h"
-#include "MsgDispatcher.h"
 #include "Type.h"
-
-using RspCallback = MsgDispatcher::RspHandle;
 
 namespace ProtoUtils {
 
@@ -63,22 +60,6 @@ inline std::string CreatePayload(const Msg& msg) {
     std::string payload;
     bool ret = msg.SerializeToString(&payload);
     assert(ret);
-    return payload;
-}
-
-/**
- * 创建Cmd消息并转换成Payload方便传输
- * @tparam cmd
- * @param message
- * @param cb
- * @return
- */
-inline std::string CreateCmdPayload(CmdType cmd, const Message& data = DataNone, const RspCallback& cb = nullptr) {
-    std::string payload;
-    auto msg = CreateCmdMsg(cmd, data);
-    auto ret = msg.SerializeToString(&payload);
-    assert(ret);
-    MsgDispatcher::getInstance()->registerRsp(msg.seq(), cb);
     return payload;
 }
 

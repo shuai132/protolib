@@ -7,13 +7,13 @@ MsgDispatcher* MsgDispatcher::getInstance() {
     return &dispatcher;
 }
 
-void MsgDispatcher::dispatcher(Connection* conn, Msg&& msg) {
+void MsgDispatcher::dispatch(Connection* conn, Msg&& msg) {
     switch (msg.type()) {
         case Msg::COMMAND:
         {
             // COMMAND
             auto cmd = msg.cmd();
-            LOGD("dispatcher cmd: seq=%d, cmd=%d", msg.seq(), cmd);
+            LOGD("dispatch cmd: seq=%d, cmd=%d", msg.seq(), cmd);
 
             auto iter = cmdHandleMap_.find(cmd);
             if (iter == cmdHandleMap_.cend()) {
@@ -27,7 +27,7 @@ void MsgDispatcher::dispatcher(Connection* conn, Msg&& msg) {
 
         case Msg::RESPONSE:
         {
-            LOGD("dispatcher rsp: seq=%d, success=%s", msg.seq(), msg.success() ? "true" : "false");
+            LOGD("dispatch rsp: seq=%d, success=%s", msg.seq(), msg.success() ? "true" : "false");
             auto iter = rspHandleMap_.find(msg.seq());
             if (iter == rspHandleMap_.cend()) {
                 LOGD("not register callback for response");

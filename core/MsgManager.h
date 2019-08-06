@@ -22,6 +22,7 @@ public:
     using CmdType = Type::CmdType;
 
     using CmdHandle = MsgDispatcher::CmdHandle;
+    using RspCallback = MsgDispatcher::RspHandle;
     using PingCallback = std::function<void(const std::string&)>;
 
 public:
@@ -186,8 +187,23 @@ private:
      */
     inline void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
         // 指定消息类型创建payload
-        auto payload = ProtoUtils::CreateCmdPayload(cmd, message, cb);
-        conn_->sendPayload(payload);
+        conn_->sendPayload(CreateMessage(cmd, message, cb));
+    }
+
+    /**
+     * 创建消息并设置回调 返回Payload用于传输
+     * @param cmd
+     * @param message
+     * @param cb
+     * @return
+     */
+    static inline std::string CreateMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
+        std::string payload;
+        auto msg = ProtoUtils::CreateCmdMsg(cmd, message);
+        auto ret = msg.SerializeToString(&payload);
+        assert(ret);
+        MsgDispatcher::getInstance()->registerRsp(msg.seq(), cb);
+        return payload;
     }
 
 private:

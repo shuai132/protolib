@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <functional>
 
 /**
  * 消息连接器
