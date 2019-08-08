@@ -14,7 +14,6 @@
  * 2. Get  用于获取数据(subscriber --> sender)
  * 4. Put  用于发送数据(sender --> subscriber)
  * 5. Set  用于设置场景 发送数据 等价于Put
- * 对于注册的回调，接收参数使用(const YourType& msg)或(YourType msg)均可，基于内部移动语义后者不会发生拷贝而影响效率。
  */
 class MsgManager {
 public:
@@ -39,7 +38,7 @@ public:
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void registerPost(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
-            Type::RspType<U> rsp = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
+            Type::RspType<U> rsp = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
                     rsp.message,
@@ -57,7 +56,7 @@ public:
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void registerPut(CmdType cmd, const std::function<bool(T&&)>& handle) {
         dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
-            bool success = handle(std::forward<T>(ProtoUtils::UnpackMsgData<T>(msg)));
+            bool success = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
                     ProtoUtils::DataNone,
@@ -118,7 +117,7 @@ public:
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     inline void sendPost(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb) {
         sendMessage(cmd, message, [&](const Msg& msg) {
-            cb(std::forward<Type::RspType<T>>(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success())));
+            cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
         });
     }
 
@@ -131,7 +130,7 @@ public:
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     inline void sendGet(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
         sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg& msg) {
-            cb(std::forward<Type::RspType<T>>(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success())));
+            cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
         });
     }
 

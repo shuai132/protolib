@@ -7,7 +7,7 @@ using namespace Type;
 /**
  * 消息收发示例
  *
- * 自定义的几个命令 测试不同收发方式的使用方法 (此示例发送和响应的类型均为StringValue)
+ * 自定义的几个命令 测试不同收发方式的使用方法
  * 发送 =======CmdMessageType=====> 接收
  * 响应 <======RspMessageType====== 回复
  */
