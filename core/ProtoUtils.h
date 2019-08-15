@@ -12,9 +12,6 @@ using namespace Type;
 // 消息的序列号 作为消息ID
 static std::atomic<SeqType> MsgSeq(0);
 
-// 默认空消息 方便接口设计
-const DefaultMsgDataType DataNone; // NOLINT(cert-err58-cpp)
-
 /**
  * 创建Cmd消息
  * @param cmd
@@ -80,7 +77,7 @@ inline T UnpackMsgData(const Msg& msg) {
  */
 inline Msg ParsePayload(const string& payload) {
     Msg msg;
-    auto ret = msg.ParseFromString(payload);
+    bool ret = msg.ParseFromString(payload);
     assert(ret);
     return msg;
 }

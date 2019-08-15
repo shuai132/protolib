@@ -2,9 +2,9 @@
 #include "log.h"
 #include "ProtoUtils.h"
 
-MsgDispatcher* MsgDispatcher::getInstance() {
+MsgDispatcher& MsgDispatcher::getInstance() {
     static MsgDispatcher dispatcher;
-    return &dispatcher;
+    return dispatcher;
 }
 
 void MsgDispatcher::dispatch(Connection* conn, Msg&& msg) {

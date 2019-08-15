@@ -6,9 +6,10 @@ namespace Type {
 
 using CmdType = int;
 using SeqType = uint32_t;
-using DefaultMsgDataType = google::protobuf::StringValue;
-
 using Message = google::protobuf::Message;
+
+// 默认空消息 方便接口设计
+const google::protobuf::StringValue DataNone; // NOLINT(cert-err58-cpp)
 
 #define ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T) \
         typename std::enable_if<std::is_base_of<Message, T>::value && !std::is_base_of<Msg, T>::value, int>::type = 0
@@ -23,7 +24,7 @@ struct RspType {
 
     RspType(T m, bool s) : message(std::move(m)), success(s) {}
 
-    RspType(bool s) : message(DefaultMsgDataType()), success(s) {} // NOLINT(google-explicit-constructor)
+    RspType(bool s) : message(DataNone), success(s) {} // NOLINT(google-explicit-constructor)
 
     RspType(T m) : message(std::move(m)), success(true) {} // NOLINT(google-explicit-constructor)
 };

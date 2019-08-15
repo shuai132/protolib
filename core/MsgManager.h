@@ -37,7 +37,7 @@ public:
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void registerPost(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
-        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
             Type::RspType<U> rsp = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -55,7 +55,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void registerPut(CmdType cmd, const std::function<bool(T&&)>& handle) {
-        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
             bool success = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -79,7 +79,7 @@ public:
      * @param handle 不接收参数 返回操作状态
      */
     void registerCtrl(CmdType cmd, const std::function<bool()>& handle) {
-        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
             bool success = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -97,7 +97,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void registerGet(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
-        dispatcher_->registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
             Type::RspType<T> rsp = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -201,11 +201,11 @@ private:
         auto msg = ProtoUtils::CreateCmdMsg(cmd, message);
         auto ret = msg.SerializeToString(&payload);
         assert(ret);
-        MsgDispatcher::getInstance()->registerRsp(msg.seq(), cb);
+        MsgDispatcher::getInstance().registerRsp(msg.seq(), cb);
         return payload;
     }
 
 private:
-    MsgDispatcher* dispatcher_ = MsgDispatcher::getInstance();
+    MsgDispatcher& dispatcher_ = MsgDispatcher::getInstance();
     std::shared_ptr<Connection> conn_;
 };

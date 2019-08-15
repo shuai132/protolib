@@ -22,7 +22,7 @@ public:
     using RspHandleMap = std::map<SeqType, RspHandle>;
 
 public:
-    static MsgDispatcher* getInstance();
+    static MsgDispatcher& getInstance();
 
     void dispatch(Connection* conn, Msg&& msg);
 
@@ -35,6 +35,7 @@ public:
 private:
     MsgDispatcher() = default;
     ~MsgDispatcher() = default;
+public:
     MsgDispatcher(const MsgDispatcher&) = delete;
     MsgDispatcher& operator=(const MsgDispatcher&) = delete;
 
