@@ -1,13 +1,19 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(protolib)
+project(protolib CXX)
+
+# option
+option(protolib_BUILD_PROTOBUF "build protobuf" ON)
+
+option(protolib_USER_PROTO_ON "generate target for proc user proto files" OFF)
+# set(protolib_USER_PROTO_DIR "proto files dir")
+# set(protolib_USER_PROTO_OUT "proto output dir")
 
 # common
 set(CMAKE_CXX_STANDARD 11)
 add_compile_options(-Wall)
 
 # protobuf(3.9.0)
-option(protolib_BUILD_PROTOBUF "build protobuf" ON)
 if (protolib_BUILD_PROTOBUF)
     message("build protobuf in protolib")
     option(protobuf_VERBOSE ON)
@@ -16,11 +22,6 @@ if (protolib_BUILD_PROTOBUF)
     add_subdirectory(third_party/protobuf/cmake protobuf)
     link_libraries(libprotobuf)
 endif()
-
-# protolib
-# 指定用户proto文件路径和生成目录
-set(USER_PROTO_DIR ${CMAKE_CURRENT_LIST_DIR}/example/proto)
-set(USER_PROTO_OUT ${CMAKE_CURRENT_LIST_DIR}/example/proto/cpp)
 
 # build library
 include_directories(.)
@@ -47,8 +48,16 @@ set(LIB_PROTO_OUT ${CMAKE_CURRENT_LIST_DIR}/proto/cpp)
 set(SCRIPTS_DIR ${CMAKE_CURRENT_LIST_DIR}/scripts)
 add_custom_target(update_proto_lib sh ${SCRIPTS_DIR}/update_proto.sh ${LIB_PROTO_DIR} ${LIB_PROTO_OUT})
 
+# 指定例子proto文件路径和生成目录
+set(EXAMPLE_PROTO_DIR ${CMAKE_CURRENT_LIST_DIR}/example/proto)
+set(EXAMPLE_PROTO_OUT ${CMAKE_CURRENT_LIST_DIR}/example/proto/cpp)
+add_custom_target(update_proto_example sh ${SCRIPTS_DIR}/update_proto.sh ${EXAMPLE_PROTO_DIR} ${EXAMPLE_PROTO_OUT})
+
 # 指定用户proto文件路径和生成目录
-if (NOT EXISTS ${USER_PROTO_DIR} OR NOT EXISTS ${USER_PROTO_OUT})
-    message(FATAL_ERROR "USER_PROTO_DIR and USER_PROTO_OUT must be set!")
+if (protolib_USER_PROTO_ON)
+    if (NOT EXISTS ${protolib_USER_PROTO_DIR} OR NOT EXISTS ${protolib_USER_PROTO_OUT})
+        message(FATAL_ERROR "protolib_USER_PROTO_DIR or protolib_USER_PROTO_OUT not set!")
+    else()
+        add_custom_target(update_proto_user sh ${SCRIPTS_DIR}/update_proto.sh ${protolib_USER_PROTO_DIR} ${protolib_USER_PROTO_OUT})
+    endif()
 endif()
-add_custom_target(update_proto_user sh ${SCRIPTS_DIR}/update_proto.sh ${USER_PROTO_DIR} ${USER_PROTO_OUT})
