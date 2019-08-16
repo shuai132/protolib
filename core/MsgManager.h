@@ -61,7 +61,7 @@ public:
             bool success = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
-                    ProtoUtils::DataNone,
+                    Type::DataNone,
                     success
             );
         });
@@ -85,7 +85,7 @@ public:
             bool success = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
-                    ProtoUtils::DataNone,
+                    Type::DataNone,
                     success
             );
         });
@@ -131,7 +131,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     inline void sendGet(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
-        sendMessage(cmd, ProtoUtils::DataNone, [&](const Msg& msg) {
+        sendMessage(cmd, Type::DataNone, [&](const Msg& msg) {
             cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
         });
     }
@@ -163,7 +163,7 @@ public:
      * @param cb 控制回调 响应是否成功
      */
     inline void sendCtrl(CmdType cmd, const std::function<void(bool)>& cb = nullptr) {
-        sendSet(cmd, ProtoUtils::DataNone, cb);
+        sendSet(cmd, Type::DataNone, cb);
     }
 
     /**
@@ -186,7 +186,7 @@ private:
      * @param message
      * @param cb
      */
-    inline void sendMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
+    inline void sendMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr) {
         // 指定消息类型创建payload
         conn_->sendPayload(CreateMessage(cmd, message, cb));
     }
@@ -198,7 +198,7 @@ private:
      * @param cb
      * @return
      */
-    static inline std::string CreateMessage(CmdType cmd, const Message& message = ProtoUtils::DataNone, const RspCallback& cb = nullptr) {
+    static inline std::string CreateMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr) {
         std::string payload;
         auto msg = ProtoUtils::CreateCmdMsg(cmd, message);
         auto ret = msg.SerializeToString(&payload);
