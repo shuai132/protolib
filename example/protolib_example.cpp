@@ -2,6 +2,7 @@
 #include "proto/cpp/AppMsg.pb.h"
 #include "log.h"
 
+using namespace protolib;
 using namespace Type;
 
 /**

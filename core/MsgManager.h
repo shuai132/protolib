@@ -4,6 +4,8 @@
 #include "core/MsgDispatcher.h"
 #include "core/ProtoUtils.h"
 
+namespace protolib {
+
 /**
  * 消息管理
  * 1. 封装操作细节以方便发送接收消息
@@ -209,3 +211,5 @@ private:
     MsgDispatcher& dispatcher_ = MsgDispatcher::getInstance();
     std::shared_ptr<Connection> conn_;
 };
+
+}

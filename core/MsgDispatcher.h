@@ -4,6 +4,8 @@
 #include "Connection.h"
 #include "Type.h"
 
+namespace protolib {
+
 using namespace proto;
 using namespace google::protobuf;
 
@@ -43,3 +45,5 @@ private:
     CmdHandleMap cmdHandleMap_;
     RspHandleMap rspHandleMap_;
 };
+
+}

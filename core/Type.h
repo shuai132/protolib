@@ -2,6 +2,7 @@
 
 #include "google/protobuf/wrappers.pb.h"
 
+namespace protolib {
 namespace Type {
 
 using CmdType = int;
@@ -36,4 +37,5 @@ R(T msg, bool success) {
     return RspType<T>(std::move(msg), success);
 }
 
+}
 }

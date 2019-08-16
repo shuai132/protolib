@@ -4,6 +4,8 @@
 #include "Type.h"
 #include "log.h"
 
+namespace protolib {
+
 Connection::Connection() {
     // 每一个连接都应注册一个PING消息，以便有PING到来时，给发送者回复PONG，PING/PONG可携带payload，会原样返回。
     MsgDispatcher::getInstance().registerCmd(Msg::PING, [](const Msg& param) {
@@ -18,4 +20,6 @@ void Connection::onPayload(const std::string& payload) {
     if (payloadHandle_) {
         payloadHandle_(payload);
     }
+}
+
 }

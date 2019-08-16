@@ -3,6 +3,7 @@
 #include "proto/cpp/Msg.pb.h"
 #include "Type.h"
 
+namespace protolib {
 namespace ProtoUtils {
 
 using namespace google::protobuf;
@@ -82,4 +83,5 @@ inline Msg ParsePayload(const string& payload) {
     return msg;
 }
 
+}
 }

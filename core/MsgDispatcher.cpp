@@ -2,6 +2,8 @@
 #include "log.h"
 #include "ProtoUtils.h"
 
+namespace protolib {
+
 MsgDispatcher& MsgDispatcher::getInstance() {
     static MsgDispatcher dispatcher;
     return dispatcher;
@@ -57,4 +59,6 @@ void MsgDispatcher::registerRsp(SeqType seq, const MsgDispatcher::RspHandle& han
 
 void MsgDispatcher::registerRsp(const Msg& msg, const MsgDispatcher::RspHandle& handle) {
     registerRsp(msg.seq(), handle);
+}
+
 }

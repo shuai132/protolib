@@ -3,6 +3,8 @@
 #include <string>
 #include <functional>
 
+namespace protolib {
+
 /**
  * 消息连接器
  * 约定消息发送和接收的接口
@@ -41,3 +43,4 @@ public:
     }
 };
 
+}
