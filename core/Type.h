@@ -18,14 +18,14 @@ const google::protobuf::StringValue DataNone; // NOLINT(cert-err58-cpp)
 #define ENSURE_TYPE_IS_MESSAGE(T) \
         typename std::enable_if<std::is_base_of<Message, T>::value, int>::type = 0
 
-template <typename T>
+template <typename T, ENSURE_TYPE_IS_MESSAGE(T)>
 struct RspType {
     T message;
     bool success;
 
     RspType(T m, bool s) : message(std::move(m)), success(s) {}
 
-    RspType(bool s) : message(DataNone), success(s) {} // NOLINT(google-explicit-constructor)
+    RspType(bool s) : message(T()), success(s) {} // NOLINT(google-explicit-constructor)
 
     RspType(T m) : message(std::move(m)), success(true) {} // NOLINT(google-explicit-constructor)
 };
