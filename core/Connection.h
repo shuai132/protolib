@@ -2,6 +2,7 @@
 
 #include <string>
 #include <functional>
+#include <cassert>
 
 namespace protolib {
 
@@ -11,7 +12,7 @@ namespace protolib {
  */
 class Connection {
 public:
-    using PayloadHandle = std::function<void(const std::string& msg)>;
+    using PayloadHandle = std::function<void(const std::string& payload)>;
 
 public:
     Connection();
@@ -24,8 +25,10 @@ public:
         payloadHandle_ = handle;
     }
 
-protected:
-    void onPayload(const std::string& payload);
+    inline void onPayload(const std::string& payload) {
+        assert(payloadHandle_);
+        payloadHandle_(payload);
+    }
 
 private:
     PayloadHandle payloadHandle_ = nullptr;

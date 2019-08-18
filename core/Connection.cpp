@@ -16,10 +16,4 @@ Connection::Connection() {
     });
 }
 
-void Connection::onPayload(const std::string& payload) {
-    if (payloadHandle_) {
-        payloadHandle_(payload);
-    }
-}
-
 }
