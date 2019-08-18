@@ -47,18 +47,28 @@ void MsgDispatcher::dispatch(Connection* conn, Msg&& msg) {
     }
 }
 
-void MsgDispatcher::registerCmd(CmdType cmd, const CmdHandle& handle) {
+void MsgDispatcher::subscribeCmd(CmdType cmd, const CmdHandle& handle) {
     cmdHandleMap_[cmd] = handle;
 }
 
-void MsgDispatcher::registerRsp(SeqType seq, const MsgDispatcher::RspHandle& handle) {
+void MsgDispatcher::unsubscribeCmd(MsgDispatcher::CmdType cmd) {
+    auto iter = cmdHandleMap_.find(cmd);
+    if (iter != cmdHandleMap_.cend()) {
+        LOGD("erase cmd: %d", cmd);
+        cmdHandleMap_.erase(iter);
+    } else {
+        LOGD("not register cmd for: %d", cmd);
+    }
+}
+
+void MsgDispatcher::subscribeRsp(SeqType seq, const MsgDispatcher::RspHandle& handle) {
     if (handle == nullptr)
         return;
     rspHandleMap_[seq] = handle;
 }
 
-void MsgDispatcher::registerRsp(const Msg& msg, const MsgDispatcher::RspHandle& handle) {
-    registerRsp(msg.seq(), handle);
+void MsgDispatcher::subscribeRsp(const Msg& msg, const MsgDispatcher::RspHandle& handle) {
+    subscribeRsp(msg.seq(), handle);
 }
 
 }

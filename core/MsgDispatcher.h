@@ -28,11 +28,13 @@ public:
 
     void dispatch(Connection* conn, Msg&& msg);
 
-    void registerCmd(CmdType cmd, const CmdHandle& handle);
+    void subscribeCmd(CmdType cmd, const CmdHandle& handle);
 
-    void registerRsp(SeqType seq, const RspHandle& handle);
+    void unsubscribeCmd(CmdType cmd);
 
-    void registerRsp(const Msg& msg, const RspHandle& handle);
+    void subscribeRsp(SeqType seq, const RspHandle& handle);
+
+    void subscribeRsp(const Msg& msg, const RspHandle& handle);
 
 private:
     MsgDispatcher() = default;

@@ -34,7 +34,7 @@ public:
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void subscribe(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
-        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
             Type::RspType<U> rsp = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -52,7 +52,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void subscribe(CmdType cmd, const std::function<bool(T&&)>& handle) {
-        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
             bool success = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -68,7 +68,7 @@ public:
      * @param handle 不接收参数 返回操作状态
      */
     void subscribe(CmdType cmd, const std::function<bool()>& handle) {
-        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
             bool success = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -86,7 +86,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void subscribe(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
-        dispatcher_.registerCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
             Type::RspType<T> rsp = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -94,6 +94,14 @@ public:
                     rsp.success
             );
         });
+    }
+
+    /**
+     * 取消注册的命令
+     * @param cmd
+     */
+    inline void unsubscribe(CmdType cmd) {
+        dispatcher_.unsubscribeCmd(cmd);
     }
 
     /**
@@ -183,7 +191,7 @@ private:
         auto msg = ProtoUtils::CreateCmdMsg(cmd, message);
         auto ret = msg.SerializeToString(&payload);
         assert(ret);
-        MsgDispatcher::getInstance().registerRsp(msg.seq(), cb);
+        MsgDispatcher::getInstance().subscribeRsp(msg.seq(), cb);
         return payload;
     }
 
