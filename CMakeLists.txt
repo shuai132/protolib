@@ -55,8 +55,8 @@ add_custom_target(update_proto_example sh ${SCRIPTS_DIR}/update_proto.sh ${EXAMP
 
 # 指定用户proto文件路径和生成目录
 if (protolib_USER_PROTO_ON)
-    if (NOT EXISTS ${protolib_USER_PROTO_DIR} OR NOT EXISTS ${protolib_USER_PROTO_OUT})
-        message(FATAL_ERROR "protolib_USER_PROTO_DIR or protolib_USER_PROTO_OUT not set!")
+    if (NOT EXISTS ${protolib_USER_PROTO_DIR})
+        message(FATAL_ERROR "protolib_USER_PROTO_DIR not set!")
     else()
         add_custom_target(update_proto_user sh ${SCRIPTS_DIR}/update_proto.sh ${protolib_USER_PROTO_DIR} ${protolib_USER_PROTO_OUT})
     endif()
