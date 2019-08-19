@@ -2,6 +2,7 @@
 
 #include "proto/cpp/Msg.pb.h"
 #include "Type.h"
+#include "Exception.h"
 
 namespace protolib {
 namespace ProtoUtils {
@@ -57,7 +58,7 @@ inline Msg CreateRspMsg(SeqType seq, const T& data = DataNone, bool success = tr
 inline std::string CreatePayload(const Msg& msg) {
     std::string payload;
     bool ret = msg.SerializeToString(&payload);
-    assert(ret);
+    throw_if(not ret);
     return payload;
 }
 
@@ -69,7 +70,7 @@ template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
 inline T UnpackMsgData(const Msg& msg) {
     T data;
     bool ret = msg.data().UnpackTo(&data);
-    assert(ret);
+    throw_if(not ret);
     return data;
 }
 
@@ -79,7 +80,7 @@ inline T UnpackMsgData(const Msg& msg) {
 inline Msg ParsePayload(const string& payload) {
     Msg msg;
     bool ret = msg.ParseFromString(payload);
-    assert(ret);
+    throw_if(not ret);
     return msg;
 }
 

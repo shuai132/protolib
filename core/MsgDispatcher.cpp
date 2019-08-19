@@ -9,7 +9,7 @@ MsgDispatcher& MsgDispatcher::getInstance() {
     return dispatcher;
 }
 
-void MsgDispatcher::dispatch(Connection* conn, Msg&& msg) {
+void MsgDispatcher::dispatch(Connection* conn, const Msg& msg) {
     switch (msg.type()) {
         case Msg::COMMAND:
         {
@@ -23,7 +23,7 @@ void MsgDispatcher::dispatch(Connection* conn, Msg&& msg) {
                 return;
             }
             auto fn = (*iter).second;
-            auto resp = fn(std::move(msg));
+            auto resp = (*iter).second(msg);
             conn->sendPayload(ProtoUtils::CreatePayload(resp));
         } break;
 
@@ -36,14 +36,14 @@ void MsgDispatcher::dispatch(Connection* conn, Msg&& msg) {
                 break;
             }
             auto cb = (*iter).second;
-            assert(cb);
-            cb(std::move(msg));
+            throw_if(not cb, "rsp handle can not be null");
+            cb(msg);
             rspHandleMap_.erase(iter);
             LOGD("rspHandleMap_.size=%ld", rspHandleMap_.size());
         } break;
 
         default:
-            assert(false);
+            throw_if(true, "unknown message type");
     }
 }
 
@@ -51,7 +51,7 @@ void MsgDispatcher::subscribeCmd(CmdType cmd, const CmdHandle& handle) {
     cmdHandleMap_[cmd] = handle;
 }
 
-void MsgDispatcher::unsubscribeCmd(MsgDispatcher::CmdType cmd) {
+void MsgDispatcher::unsubscribeCmd(CmdType cmd) {
     auto iter = cmdHandleMap_.find(cmd);
     if (iter != cmdHandleMap_.cend()) {
         LOGD("erase cmd: %d", cmd);

@@ -18,15 +18,22 @@ class MsgDispatcher {
     using CmdType = Type::CmdType;
 
 public:
-    using CmdHandle = std::function<Msg(Msg&&)>;
+    using CmdHandle = std::function<Msg(const Msg&)>;
     using CmdHandleMap = std::map<CmdType, CmdHandle>;
-    using RspHandle = std::function<void(Msg&&)>;
+    using RspHandle = std::function<void(const Msg&)>;
     using RspHandleMap = std::map<SeqType, RspHandle>;
+
+private:
+    MsgDispatcher() = default;
+    ~MsgDispatcher() = default;
+public:
+    MsgDispatcher(const MsgDispatcher&) = delete;
+    MsgDispatcher& operator=(const MsgDispatcher&) = delete;
 
 public:
     static MsgDispatcher& getInstance();
 
-    void dispatch(Connection* conn, Msg&& msg);
+    void dispatch(Connection* conn, const Msg& msg);
 
     void subscribeCmd(CmdType cmd, const CmdHandle& handle);
 
@@ -35,13 +42,6 @@ public:
     void subscribeRsp(SeqType seq, const RspHandle& handle);
 
     void subscribeRsp(const Msg& msg, const RspHandle& handle);
-
-private:
-    MsgDispatcher() = default;
-    ~MsgDispatcher() = default;
-public:
-    MsgDispatcher(const MsgDispatcher&) = delete;
-    MsgDispatcher& operator=(const MsgDispatcher&) = delete;
 
 private:
     CmdHandleMap cmdHandleMap_;

@@ -42,24 +42,24 @@ int main() {
 
         // 2. sender发送数据 subscriber返回操作状态
         {
-            msgManager.subscribe<StringValue>(AppMsg::HELLO3, [&](StringValue msg) {
-                LOGI("get AppMsg::HELLO3: %s", msg.value().c_str());
+            msgManager.subscribe<StringValue>(AppMsg::HELLO2, [&](StringValue msg) {
+                LOGI("get AppMsg::HELLO2: %s", msg.value().c_str());
                 assert(msg.value() == HELLO_PAYLOAD);
                 return true;
             });
-            msgManager.send(AppMsg::HELLO3, message_hello, [](bool success) {
-                LOGI("get rsp from AppMsg::HELLO3: success=%s", success ? "true" : "false");
+            msgManager.send(AppMsg::HELLO2, message_hello, [](bool success) {
+                LOGI("get rsp from AppMsg::HELLO2: success=%s", success ? "true" : "false");
             });
         }
 
         // 3. sender请求数据 subscriber返回数据操作状态
         {
-            msgManager.subscribe<StringValue>(AppMsg::HELLO2, [&]() {
-                LOGI("get AppMsg::HELLO2:");
+            msgManager.subscribe<StringValue>(AppMsg::HELLO3, [&]() {
+                LOGI("get AppMsg::HELLO3:");
                 return R(message_hello, true);  // 也可以直接返回message或者bool
             });
-            msgManager.send<StringValue>(AppMsg::HELLO2, [&](RspType<StringValue> rsp) {
-                LOGI("get rsp from AppMsg::HELLO2: success=%s", rsp.success ? "true" : "false");
+            msgManager.send<StringValue>(AppMsg::HELLO3, [&](RspType<StringValue> rsp) {
+                LOGI("get rsp from AppMsg::HELLO3: success=%s", rsp.success ? "true" : "false");
                 if (rsp.success) {
                     LOGI("msg=%s", rsp.message.value().c_str());
                     assert(rsp.message.value() == HELLO_PAYLOAD);

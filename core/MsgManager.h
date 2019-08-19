@@ -176,7 +176,7 @@ private:
      */
     inline void sendMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr) {
         // 指定消息类型创建payload
-        conn_->sendPayload(CreateMessage(cmd, message, cb));
+        conn_->sendPayload(CreateMessagePayload(cmd, message, cb));
     }
 
     /**
@@ -186,11 +186,11 @@ private:
      * @param cb
      * @return
      */
-    static inline std::string CreateMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr) {
+    static inline std::string CreateMessagePayload(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr) {
         std::string payload;
         auto msg = ProtoUtils::CreateCmdMsg(cmd, message);
-        auto ret = msg.SerializeToString(&payload);
-        assert(ret);
+        bool ret = msg.SerializeToString(&payload);
+        throw_if(not ret);
         MsgDispatcher::getInstance().subscribeRsp(msg.seq(), cb);
         return payload;
     }
