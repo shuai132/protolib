@@ -19,9 +19,7 @@ class MsgDispatcher {
 
 public:
     using CmdHandle = std::function<Msg(const Msg&)>;
-    using CmdHandleMap = std::map<CmdType, CmdHandle>;
     using RspHandle = std::function<void(const Msg&)>;
-    using RspHandleMap = std::map<SeqType, RspHandle>;
 
 private:
     MsgDispatcher() = default;
@@ -44,8 +42,8 @@ public:
     void subscribeRsp(const Msg& msg, const RspHandle& handle);
 
 private:
-    CmdHandleMap cmdHandleMap_;
-    RspHandleMap rspHandleMap_;
+    std::map<CmdType, CmdHandle> cmdHandleMap_;
+    std::map<SeqType, RspHandle> rspHandleMap_;
 };
 
 }

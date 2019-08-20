@@ -22,7 +22,7 @@ public:
     using PingCallback = std::function<void(const std::string&)>;
 
 public:
-    explicit MsgManager(std::shared_ptr<Connection> conn);
+    explicit MsgManager(const std::shared_ptr<Connection>& conn);
 
 public:
     /**
@@ -34,7 +34,7 @@ public:
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
     void subscribe(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
-        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
             Type::RspType<U> rsp = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -52,7 +52,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void subscribe(CmdType cmd, const std::function<bool(T&&)>& handle) {
-        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
             bool success = handle(ProtoUtils::UnpackMsgData<T>(msg));
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -68,7 +68,7 @@ public:
      * @param handle 不接收参数 返回操作状态
      */
     void subscribe(CmdType cmd, const std::function<bool()>& handle) {
-        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
             bool success = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -86,7 +86,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void subscribe(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
-        dispatcher_.subscribeCmd(cmd, [&](const Msg& msg) {
+        dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
             Type::RspType<T> rsp = handle();
             return ProtoUtils::CreateRspMsg(
                     msg.seq(),
@@ -113,7 +113,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     inline void send(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb) {
-        sendMessage(cmd, message, [&](const Msg& msg) {
+        sendMessage(cmd, message, [cb](const Msg& msg) {
             cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
         });
     }
@@ -126,7 +126,7 @@ public:
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     inline void send(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
-        sendMessage(cmd, Type::DataNone, [&](const Msg& msg) {
+        sendMessage(cmd, Type::DataNone, [cb](const Msg& msg) {
             cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
         });
     }
@@ -138,7 +138,7 @@ public:
      * @param cb 消息回调 对方响应是否成功
      */
     inline void send(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr) {
-        sendMessage(cmd, message, [&](const Msg& msg) {
+        sendMessage(cmd, message, [cb](const Msg& msg) {
             if (cb != nullptr) {
                 cb(msg.success());
             }
@@ -162,7 +162,7 @@ public:
     inline void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr) {
         StringValue stringValue;
         stringValue.set_value(payload);
-        sendMessage(Msg::PING, stringValue, [&](const Msg& msg) {
+        sendMessage(Msg::PING, stringValue, [cb](const Msg& msg) {
             cb(ProtoUtils::UnpackMsgData<StringValue>(msg).value());
         });
     }

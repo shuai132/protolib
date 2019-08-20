@@ -23,7 +23,7 @@ void MsgDispatcher::dispatch(Connection* conn, const Msg& msg) {
                 return;
             }
             auto fn = (*iter).second;
-            auto resp = (*iter).second(msg);
+            auto resp = fn(msg);
             conn->sendPayload(ProtoUtils::CreatePayload(resp));
         } break;
 
@@ -48,6 +48,7 @@ void MsgDispatcher::dispatch(Connection* conn, const Msg& msg) {
 }
 
 void MsgDispatcher::subscribeCmd(CmdType cmd, const CmdHandle& handle) {
+    LOGD("subscribeCmd cmd:%d, handle:%p", cmd, &handle);
     cmdHandleMap_[cmd] = handle;
 }
 
@@ -62,6 +63,7 @@ void MsgDispatcher::unsubscribeCmd(CmdType cmd) {
 }
 
 void MsgDispatcher::subscribeRsp(SeqType seq, const MsgDispatcher::RspHandle& handle) {
+    LOGD("subscribeRsp seq:%d, handle:%p", seq, &handle);
     if (handle == nullptr)
         return;
     rspHandleMap_[seq] = handle;
