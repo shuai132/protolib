@@ -25,9 +25,6 @@ public:
 public:
     explicit MsgDispatcher(std::shared_ptr<Connection> conn);
     ~MsgDispatcher() = default;
-public:
-    MsgDispatcher(const MsgDispatcher&) = delete;
-    MsgDispatcher& operator=(const MsgDispatcher&) = delete;
 
 public:
     void dispatch(const Msg& msg);

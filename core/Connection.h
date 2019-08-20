@@ -2,7 +2,6 @@
 
 #include <string>
 #include <functional>
-#include <cassert>
 
 namespace protolib {
 
@@ -19,19 +18,17 @@ public:
     virtual ~Connection() = default;
 
 public:
-    virtual void sendPayload(const std::string& payload) = 0;
+    virtual void sendPayload(const std::string& payload);
 
-    inline void setPayloadHandle(const PayloadHandle& handle) {
-        payloadHandle_ = handle;
-    }
+    void onPayload(const std::string& payload);
 
-    inline void onPayload(const std::string& payload) {
-        assert(payloadHandle_);
-        payloadHandle_(payload);
-    }
+    void setOnPayloadHandle(const PayloadHandle& handle);
+
+    void setSendPayloadFunc(const PayloadHandle& handle);
 
 private:
-    PayloadHandle payloadHandle_ = nullptr;
+    PayloadHandle onPayloadHandle_;
+    PayloadHandle sendPayloadFunc_;
 };
 
 
@@ -41,8 +38,10 @@ private:
  */
 class LoopbackConnection : public Connection {
 public:
-    void sendPayload(const std::string& payload) override {
-        onPayload(payload);
+    LoopbackConnection() {
+        setSendPayloadFunc([&](const std::string& payload){
+            onPayload(payload);
+        });
     }
 };
 

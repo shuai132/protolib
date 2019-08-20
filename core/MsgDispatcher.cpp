@@ -5,7 +5,7 @@
 namespace protolib {
 
 MsgDispatcher::MsgDispatcher(std::shared_ptr<Connection> conn) : conn_(std::move(conn)) {
-    conn_->setPayloadHandle([this](const std::string& payload){
+    conn_->setOnPayloadHandle([this](const std::string& payload){
         this->dispatch(ProtoUtils::ParsePayload(payload));
     });
 

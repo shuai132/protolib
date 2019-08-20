@@ -22,7 +22,7 @@ public:
     using PingCallback = std::function<void(const std::string&)>;
 
 public:
-    explicit MsgManager(const std::shared_ptr<Connection>& conn);
+    explicit MsgManager(std::shared_ptr<Connection> conn);
 
 public:
     std::shared_ptr<Connection> getConn() const;

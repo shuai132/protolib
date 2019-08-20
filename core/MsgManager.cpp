@@ -2,8 +2,8 @@
 
 namespace protolib {
 
-MsgManager::MsgManager(const std::shared_ptr<Connection>& conn)
-        : conn_(conn), dispatcher_(conn) {
+MsgManager::MsgManager(std::shared_ptr<Connection> conn)
+        : conn_(conn), dispatcher_(std::move(conn)) {
 }
 
 std::shared_ptr<Connection> MsgManager::getConn() const {
