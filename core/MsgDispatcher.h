@@ -3,6 +3,7 @@
 #include "proto/cpp/Msg.pb.h"
 #include "Connection.h"
 #include "Type.h"
+#include "ProtoUtils.h"
 
 namespace protolib {
 
@@ -21,17 +22,15 @@ public:
     using CmdHandle = std::function<Msg(const Msg&)>;
     using RspHandle = std::function<void(const Msg&)>;
 
-private:
-    MsgDispatcher() = default;
+public:
+    explicit MsgDispatcher(std::shared_ptr<Connection> conn);
     ~MsgDispatcher() = default;
 public:
     MsgDispatcher(const MsgDispatcher&) = delete;
     MsgDispatcher& operator=(const MsgDispatcher&) = delete;
 
 public:
-    static MsgDispatcher& getInstance();
-
-    void dispatch(Connection* conn, const Msg& msg);
+    void dispatch(const Msg& msg);
 
     void subscribeCmd(CmdType cmd, const CmdHandle& handle);
 
@@ -41,7 +40,10 @@ public:
 
     void subscribeRsp(const Msg& msg, const RspHandle& handle);
 
+    std::shared_ptr<Connection> getConn() const;
+
 private:
+    std::shared_ptr<Connection> conn_;
     std::map<CmdType, CmdHandle> cmdHandleMap_;
     std::map<SeqType, RspHandle> rspHandleMap_;
 };

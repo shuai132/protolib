@@ -15,7 +15,7 @@ public:
     using PayloadHandle = std::function<void(const std::string& payload)>;
 
 public:
-    Connection();
+    Connection() = default;
     virtual ~Connection() = default;
 
 public:

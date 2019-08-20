@@ -4,12 +4,20 @@
 
 namespace protolib {
 
-MsgDispatcher& MsgDispatcher::getInstance() {
-    static MsgDispatcher dispatcher;
-    return dispatcher;
+MsgDispatcher::MsgDispatcher(std::shared_ptr<Connection> conn) : conn_(std::move(conn)) {
+    conn_->setPayloadHandle([this](const std::string& payload){
+        this->dispatch(ProtoUtils::ParsePayload(payload));
+    });
+
+    // 每一个连接要册一个PING消息，以便有PING到来时，给发送者回复PONG，PING/PONG可携带payload，会原样返回。
+    subscribeCmd(Msg::PING, [](const Msg& param) {
+        auto msg = static_cast<Msg>(param);
+        msg.set_cmd(Msg::PONG);
+        return ProtoUtils::CreateRspMsg(msg.seq(), ProtoUtils::UnpackMsgData<StringValue>(std::forward<Msg>(msg)));
+    });
 }
 
-void MsgDispatcher::dispatch(Connection* conn, const Msg& msg) {
+void MsgDispatcher::dispatch(const Msg& msg) {
     switch (msg.type()) {
         case Msg::COMMAND:
         {
@@ -24,7 +32,7 @@ void MsgDispatcher::dispatch(Connection* conn, const Msg& msg) {
             }
             auto fn = (*iter).second;
             auto resp = fn(msg);
-            conn->sendPayload(ProtoUtils::CreatePayload(resp));
+            conn_->sendPayload(ProtoUtils::CreatePayload(resp));
         } break;
 
         case Msg::RESPONSE:
@@ -71,6 +79,10 @@ void MsgDispatcher::subscribeRsp(SeqType seq, const MsgDispatcher::RspHandle& ha
 
 void MsgDispatcher::subscribeRsp(const Msg& msg, const MsgDispatcher::RspHandle& handle) {
     subscribeRsp(msg.seq(), handle);
+}
+
+std::shared_ptr<Connection> MsgDispatcher::getConn() const {
+    return conn_;
 }
 
 }

@@ -25,6 +25,9 @@ public:
     explicit MsgManager(const std::shared_ptr<Connection>& conn);
 
 public:
+    std::shared_ptr<Connection> getConn() const;
+
+public:
     /**
      * 注册命令 接收消息 返回消息
      * @tparam T 接收消息的类型 这将决定解析行为 与发送时"发送参数类型"一致
@@ -159,13 +162,7 @@ public:
      * @param payload 负载数据默认为空
      * @param cb 参数类型std::string
      */
-    inline void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr) {
-        StringValue stringValue;
-        stringValue.set_value(payload);
-        sendMessage(Msg::PING, stringValue, [cb](const Msg& msg) {
-            cb(ProtoUtils::UnpackMsgData<StringValue>(msg).value());
-        });
-    }
+    void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr);
 
 private:
     /**
@@ -174,10 +171,7 @@ private:
      * @param message
      * @param cb
      */
-    inline void sendMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr) {
-        // 指定消息类型创建payload
-        conn_->sendPayload(CreateMessagePayload(cmd, message, cb));
-    }
+    void sendMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr);
 
     /**
      * 创建消息并设置回调 返回Payload用于传输
@@ -186,18 +180,11 @@ private:
      * @param cb
      * @return
      */
-    static inline std::string CreateMessagePayload(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr) {
-        std::string payload;
-        auto msg = ProtoUtils::CreateCmdMsg(cmd, message);
-        bool ret = msg.SerializeToString(&payload);
-        throw_if(not ret);
-        MsgDispatcher::getInstance().subscribeRsp(msg.seq(), cb);
-        return payload;
-    }
+    std::string CreateMessagePayload(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr);
 
 private:
-    MsgDispatcher& dispatcher_ = MsgDispatcher::getInstance();
     std::shared_ptr<Connection> conn_;
+    MsgDispatcher dispatcher_;
 };
 
 }
