@@ -38,10 +38,8 @@ private:
  */
 class LoopbackConnection : public Connection {
 public:
-    LoopbackConnection() {
-        setSendPayloadFunc([&](const std::string& payload){
-            onPayload(payload);
-        });
+    void sendPayload(const std::string& payload) override {
+        onPayload(payload);
     }
 };
 

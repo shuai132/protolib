@@ -77,10 +77,9 @@ inline T UnpackMsgData(const Msg& msg) {
 /**
  * 将payload转换为Msg
  */
-inline Msg ParsePayload(const string& payload) {
+inline Msg ParsePayload(const string& payload, bool& success) {
     Msg msg;
-    bool ret = msg.ParseFromString(payload);
-    throw_if(not ret);
+    success = msg.ParseFromString(payload);
     return msg;
 }
 

@@ -6,7 +6,13 @@ namespace protolib {
 
 MsgDispatcher::MsgDispatcher(std::shared_ptr<Connection> conn) : conn_(std::move(conn)) {
     conn_->setOnPayloadHandle([this](const std::string& payload){
-        this->dispatch(ProtoUtils::ParsePayload(payload));
+        bool success;
+        auto msg = ProtoUtils::ParsePayload(payload, success);
+        if (success) {
+            this->dispatch(msg);
+        } else {
+            LOGE("payload can not be parsed");
+        }
     });
 
     // 每一个连接要册一个PING消息，以便有PING到来时，给发送者回复PONG，PING/PONG可携带payload，会原样返回。
@@ -23,7 +29,7 @@ void MsgDispatcher::dispatch(const Msg& msg) {
         {
             // COMMAND
             auto cmd = msg.cmd();
-            LOGD("dispatch cmd: seq=%d, cmd=%d", msg.seq(), cmd);
+            LOGD("dispatch cmd:%d, seq:%d, conn:%p", cmd, msg.seq(), conn_.get());
 
             auto iter = cmdHandleMap_.find(cmd);
             if (iter == cmdHandleMap_.cend()) {
@@ -37,7 +43,7 @@ void MsgDispatcher::dispatch(const Msg& msg) {
 
         case Msg::RESPONSE:
         {
-            LOGD("dispatch rsp: seq=%d, success=%s", msg.seq(), msg.success() ? "true" : "false");
+            LOGD("dispatch rsp: seq=%d, success=%d, conn:%p", msg.seq(), msg.success(), conn_.get());
             auto iter = rspHandleMap_.find(msg.seq());
             if (iter == rspHandleMap_.cend()) {
                 LOGD("not register callback for response");
@@ -51,12 +57,12 @@ void MsgDispatcher::dispatch(const Msg& msg) {
         } break;
 
         default:
-            throw_if(true, "unknown message type");
+            LOGE("unknown message type, conn:%p", conn_.get());
     }
 }
 
 void MsgDispatcher::subscribeCmd(CmdType cmd, const CmdHandle& handle) {
-    LOGD("subscribeCmd cmd:%d, handle:%p", cmd, &handle);
+    LOGD("subscribeCmd conn:%p, cmd:%d, handle:%p", conn_.get(), cmd, &handle);
     cmdHandleMap_[cmd] = handle;
 }
 
