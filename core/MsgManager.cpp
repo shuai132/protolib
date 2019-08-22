@@ -14,6 +14,7 @@ void MsgManager::sendPing(const string& payload, const MsgManager::PingCallback&
     StringValue stringValue;
     stringValue.set_value(payload);
     sendMessage(Msg::PING, stringValue, [cb](const Msg& msg) {
+        if (cb == nullptr) return;
         cb(ProtoUtils::UnpackMsgData<StringValue>(msg).value());
     });
 }

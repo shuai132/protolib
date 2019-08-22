@@ -36,7 +36,7 @@ void MsgDispatcher::dispatch(const Msg& msg) {
                 LOGD("not register cmd for: %d", cmd);
                 return;
             }
-            auto fn = (*iter).second;
+            const auto& fn = (*iter).second;
             auto resp = fn(msg);
             conn_->sendPayload(ProtoUtils::CreatePayload(resp));
         } break;
@@ -49,7 +49,7 @@ void MsgDispatcher::dispatch(const Msg& msg) {
                 LOGD("not register callback for response");
                 break;
             }
-            auto cb = (*iter).second;
+            const auto& cb = (*iter).second;
             throw_if(not cb, "rsp handle can not be null");
             cb(msg);
             rspHandleMap_.erase(iter);
