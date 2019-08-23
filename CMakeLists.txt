@@ -9,10 +9,6 @@ option(protolib_USER_PROTO_ON "generate target for proc user proto files" OFF)
 # set(protolib_USER_PROTO_DIR "proto files dir")
 # set(protolib_USER_PROTO_OUT "proto output dir")
 
-# common
-set(CMAKE_CXX_STANDARD 11)
-add_compile_options(-Wall)
-
 # protobuf(3.9.0)
 if (protolib_BUILD_PROTOBUF)
     message("build protobuf in protolib")
@@ -22,6 +18,10 @@ if (protolib_BUILD_PROTOBUF)
     add_subdirectory(third_party/protobuf/cmake protobuf)
     link_libraries(libprotobuf)
 endif()
+
+# common
+set(CMAKE_CXX_STANDARD 11)
+add_compile_options(-Wall)
 
 # build library
 include_directories(.)
