@@ -21,7 +21,6 @@ a simple RPC library for C++ based on Protobuf.
 
 ## 待完善
 * 消息超时机制
-* 错误和异常处理
 
 ## 使用方法
 [example/protolib_example.cpp](example/protolib_example.cpp)
