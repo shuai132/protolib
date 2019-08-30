@@ -68,16 +68,16 @@ namespace proto {
 enum AppMsg_Cmd : int {
   AppMsg_Cmd_NONE = 0,
   AppMsg_Cmd_RESERVED = 10,
-  AppMsg_Cmd_HELLO1 = 11,
-  AppMsg_Cmd_HELLO2 = 12,
-  AppMsg_Cmd_HELLO3 = 13,
-  AppMsg_Cmd_HELLO4 = 14,
+  AppMsg_Cmd_CMD1 = 11,
+  AppMsg_Cmd_CMD2 = 12,
+  AppMsg_Cmd_CMD3 = 13,
+  AppMsg_Cmd_CMD4 = 14,
   AppMsg_Cmd_AppMsg_Cmd_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   AppMsg_Cmd_AppMsg_Cmd_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool AppMsg_Cmd_IsValid(int value);
 constexpr AppMsg_Cmd AppMsg_Cmd_Cmd_MIN = AppMsg_Cmd_NONE;
-constexpr AppMsg_Cmd AppMsg_Cmd_Cmd_MAX = AppMsg_Cmd_HELLO4;
+constexpr AppMsg_Cmd AppMsg_Cmd_Cmd_MAX = AppMsg_Cmd_CMD4;
 constexpr int AppMsg_Cmd_Cmd_ARRAYSIZE = AppMsg_Cmd_Cmd_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* AppMsg_Cmd_descriptor();
@@ -211,14 +211,14 @@ class AppMsg :
     AppMsg_Cmd_NONE;
   static constexpr Cmd RESERVED =
     AppMsg_Cmd_RESERVED;
-  static constexpr Cmd HELLO1 =
-    AppMsg_Cmd_HELLO1;
-  static constexpr Cmd HELLO2 =
-    AppMsg_Cmd_HELLO2;
-  static constexpr Cmd HELLO3 =
-    AppMsg_Cmd_HELLO3;
-  static constexpr Cmd HELLO4 =
-    AppMsg_Cmd_HELLO4;
+  static constexpr Cmd CMD1 =
+    AppMsg_Cmd_CMD1;
+  static constexpr Cmd CMD2 =
+    AppMsg_Cmd_CMD2;
+  static constexpr Cmd CMD3 =
+    AppMsg_Cmd_CMD3;
+  static constexpr Cmd CMD4 =
+    AppMsg_Cmd_CMD4;
   static inline bool Cmd_IsValid(int value) {
     return AppMsg_Cmd_IsValid(value);
   }

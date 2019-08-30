@@ -8,9 +8,9 @@ message AppMsg {
         NONE = 0;
         RESERVED = 10;
         // todo: add user cmd
-        HELLO1 = 11;
-        HELLO2 = 12;
-        HELLO3 = 13;
-        HELLO4 = 14;
+        CMD1 = 11;
+        CMD2 = 12;
+        CMD3 = 13;
+        CMD4 = 14;
     }
 }
