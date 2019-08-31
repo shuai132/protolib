@@ -23,4 +23,22 @@ a simple RPC library for C++ based on Protobuf.
 * 消息超时机制
 
 ## 使用方法
-[example/protolib_example.cpp](example/protolib_example.cpp)
+几个概念：
+* [Connection](core/Connection.h): 消息连接 消息收发的接口
+* [MsgManager](core/MsgManager.h): 消息管理 用于注册和发送消息
+
+使用例子：
+* [example/protolib_example.cpp](example/protolib_example.cpp)
+
+## 消息格式/协议
+消息格式基于Protobuf3，Msg类型供消息收发，基础结构如下：
+```
+message Msg {
+    uint32 seq = 1; // 消息id 用于匹配消息响应
+    Type type = 2;  // 消息类型 请求/响应
+    Any data = 3;   // 消息数据
+}
+```
+[完整协议](proto/Msg.proto)
+
+本库即为上述协议的C++实现，并提供一些特性以方便使用。其他语言可参考实现。

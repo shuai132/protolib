@@ -1,13 +1,12 @@
 syntax = "proto3";
 package proto;
 
-// 消息收发复用Msg类型
 message AppMsg {
     // 命令类型
     enum Cmd {
         NONE = 0;
         RESERVED = 10;
-        // todo: add user cmd
+        // 用户CMD要用10以后的数
         CMD1 = 11;
         CMD2 = 12;
         CMD3 = 13;

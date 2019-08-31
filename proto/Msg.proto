@@ -3,11 +3,11 @@ package proto;
 
 import "google/protobuf/any.proto";
 
-// 消息收发复用Msg类型
+// 消息收发所用Msg类型
 message Msg {
-    uint32 seq = 1; // 消息的序列id 用于匹配消息响应
-    Type type = 2;  // 消息类型
-    google.protobuf.Any data = 3;  // 不同type、cmd有不同类型
+    uint32 seq = 1;                 // 消息id 用于匹配消息响应
+    Type type = 2;                  // 消息类型 请求/响应
+    google.protobuf.Any data = 3;   // 消息数据
 
     // 当type是COMMAND时 有以下字段
     uint32 cmd = 10;
@@ -15,7 +15,7 @@ message Msg {
     // 当type是RESPONSE时 有以下字段
     bool success = 20;
 
-    // 消息类型 请求/响应
+    // 消息类型
     enum Type {
         COMMAND = 0;
         RESPONSE = 1;

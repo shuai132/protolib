@@ -6,7 +6,7 @@
 namespace protolib {
 
 /**
- * 消息连接器
+ * 消息连接
  * 约定消息发送和接收的接口
  */
 class Connection {
@@ -33,7 +33,7 @@ private:
 
 
 /**
- * 回环消息连接器
+ * 回环消息连接
  * 多用于测试
  */
 class LoopbackConnection : public Connection {
