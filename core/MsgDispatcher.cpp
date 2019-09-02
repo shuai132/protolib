@@ -53,7 +53,7 @@ void MsgDispatcher::dispatch(const Msg& msg) {
             throw_if(not cb, "rsp handle can not be null");
             cb(msg);
             rspHandleMap_.erase(iter);
-            LOGD("rspHandleMap_.size=%ld", rspHandleMap_.size());
+            LOGD("rspHandleMap_.size=%zu", rspHandleMap_.size());
         } break;
 
         default:
@@ -76,19 +76,31 @@ void MsgDispatcher::unsubscribeCmd(CmdType cmd) {
     }
 }
 
-void MsgDispatcher::subscribeRsp(SeqType seq, const MsgDispatcher::RspHandle& handle) {
+void MsgDispatcher::subscribeRsp(SeqType seq, const MsgDispatcher::RspHandle& handle, const TimeoutCb& timeoutCb, uint32_t timeoutMs) {
     LOGD("subscribeRsp seq:%d, handle:%p", seq, &handle);
-    if (handle == nullptr)
-        return;
+    if (handle == nullptr) return;
     rspHandleMap_[seq] = handle;
-}
 
-void MsgDispatcher::subscribeRsp(const Msg& msg, const MsgDispatcher::RspHandle& handle) {
-    subscribeRsp(msg.seq(), handle);
+    throw_if(setTimeout_ == nullptr, "no timeout will cause memory leak");
+
+    setTimeout_(timeoutMs, [=] {
+        if (timeoutCb) {
+            timeoutCb();
+        }
+        auto iter = rspHandleMap_.find(seq);
+        if (iter != rspHandleMap_.cend()) {
+            rspHandleMap_.erase(seq);
+            LOGD("Timeout seq=%d, rspHandleMap_.size=%zu", seq, rspHandleMap_.size());
+        }
+    });
 }
 
 std::shared_ptr<Connection> MsgDispatcher::getConn() const {
     return conn_;
+}
+
+void MsgDispatcher::setTimerFunc(const MsgDispatcher::SetTimeout& timerFunc) {
+    setTimeout_ = timerFunc;
 }
 
 }

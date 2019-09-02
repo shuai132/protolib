@@ -19,6 +19,7 @@ public:
 
     using CmdHandle = MsgDispatcher::CmdHandle;
     using RspCallback = MsgDispatcher::RspHandle;
+    using TimeoutCb = MsgDispatcher::TimeoutCb;
     using PingCallback = std::function<void(const std::string&)>;
 
 public:
@@ -26,6 +27,7 @@ public:
 
 public:
     std::shared_ptr<Connection> getConn() const;
+    void setTimerFunc(const MsgDispatcher::SetTimeout&);
 
 public:
     /**
@@ -113,12 +115,14 @@ public:
      * @param cmd 消息类型
      * @param message 消息数据
      * @param cb 消息回调 参数类型Type::RspType<T>
+     * @param timeoutCb 超时回调
+     * @param timeoutMs 超时时间
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    inline void send(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb) {
+    inline void send(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
         sendMessage(cmd, message, [cb](const Msg& msg) {
             cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
-        });
+        }, timeoutCb, timeoutMs);
     }
 
     /**
@@ -126,12 +130,14 @@ public:
      * @tparam T 接收消息的类型
      * @param cmd
      * @param cb 消息回调 参数类型Type::RspType<T>
+     * @param timeoutCb 超时回调
+     * @param timeoutMs 超时时间
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    inline void send(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb) {
+    inline void send(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
         sendMessage(cmd, Type::DataNone, [cb](const Msg& msg) {
             cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
-        });
+        }, timeoutCb, timeoutMs);
     }
 
     /**
@@ -139,30 +145,36 @@ public:
      * @param cmd
      * @param message
      * @param cb 消息回调 对方响应是否成功
+     * @param timeoutCb 超时回调
+     * @param timeoutMs 超时时间
      */
-    inline void send(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr) {
+    inline void send(CmdType cmd, const Message& message, const std::function<void(bool)>& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
         sendMessage(cmd, message, [cb](const Msg& msg) {
             if (cb != nullptr) {
                 cb(msg.success());
             }
-        });
+        }, timeoutCb, timeoutMs);
     }
 
     /**
      * 发送命令 获取是否成功
      * @param cmd
      * @param cb
+     * @param timeoutCb 超时回调
+     * @param timeoutMs 超时时间
      */
-    inline void send(CmdType cmd, const std::function<void(bool)>& cb = nullptr) {
-        send(cmd, Type::DataNone, cb);
+    inline void send(CmdType cmd, const std::function<void(bool)>& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
+        send(cmd, Type::DataNone, cb, timeoutCb, timeoutMs);
     }
 
     /**
      * 可作为连通性的测试 会原样返回payload
      * @param payload 负载数据默认为空
      * @param cb 参数类型std::string
+     * @param timeoutCb 超时回调
+     * @param timeoutMs 超时时间
      */
-    void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr);
+    void sendPing(const std::string& payload = "", const PingCallback& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000);
 
 private:
     /**
@@ -170,17 +182,21 @@ private:
      * @param cmd
      * @param message
      * @param cb
+     * @param timeoutCb 超时回调
+     * @param timeoutMs 超时时间
      */
-    void sendMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr);
+    void sendMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000);
 
     /**
      * 创建消息并设置回调 返回Payload用于传输
      * @param cmd
      * @param message
      * @param cb
+     * @param timeoutCb 超时回调
+     * @param timeoutMs 超时时间
      * @return
      */
-    std::string CreateMessagePayload(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr);
+    std::string CreateMessagePayload(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000);
 
 private:
     std::shared_ptr<Connection> conn_;
