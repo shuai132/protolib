@@ -24,7 +24,6 @@ set(CMAKE_CXX_STANDARD 11)
 add_compile_options(-Wall)
 
 # build library
-include_directories(.)
 add_library(${PROJECT_NAME}
         STATIC
         proto/cpp/Msg.pb.cc
@@ -34,6 +33,7 @@ add_library(${PROJECT_NAME}
         core/MsgManager.cpp
         )
 link_libraries(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PUBLIC .)
 
 # log
 include_directories(modules/log)
