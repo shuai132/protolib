@@ -1,8 +1,9 @@
 #pragma once
 
-#include "core/Connection.h"
-#include "core/MsgDispatcher.h"
-#include "core/ProtoUtils.h"
+#include "Connection.h"
+#include "MsgDispatcher.h"
+#include "ProtoUtils.h"
+#include "noncopyable.h"
 
 namespace protolib {
 
@@ -12,7 +13,7 @@ namespace protolib {
  * 2. 持有一个连接 收发均基于此连接
  * 为了方便使用，消息注册和发送重载了多种形式。
  */
-class MsgManager {
+class MsgManager : public noncopyable {
 public:
     using SeqType = Type::SeqType;
     using CmdType = Type::CmdType;

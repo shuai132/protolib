@@ -4,6 +4,7 @@
 #include "Connection.h"
 #include "Type.h"
 #include "ProtoUtils.h"
+#include "noncopyable.h"
 
 namespace protolib {
 
@@ -14,7 +15,7 @@ using namespace google::protobuf;
  * 消息分发器
  * 注册消息到指定命令
  */
-class MsgDispatcher {
+class MsgDispatcher : public noncopyable {
     using SeqType = Type::SeqType;
     using CmdType = Type::CmdType;
 
