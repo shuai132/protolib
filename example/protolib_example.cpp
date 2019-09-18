@@ -1,4 +1,4 @@
-#include "core/MsgManager.h"
+#include "MsgManager.h"
 #include "proto/cpp/AppMsg.pb.h"
 #include "log.h"
 

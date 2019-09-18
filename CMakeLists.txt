@@ -33,7 +33,7 @@ add_library(${PROJECT_NAME}
         core/MsgManager.cpp
         )
 link_libraries(${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} PUBLIC .)
+target_include_directories(${PROJECT_NAME} PUBLIC . core)
 
 # log
 include_directories(modules/log)
