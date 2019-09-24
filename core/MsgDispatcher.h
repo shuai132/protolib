@@ -15,7 +15,7 @@ using namespace google::protobuf;
  * 消息分发器
  * 注册消息到指定命令
  */
-class MsgDispatcher : public noncopyable {
+class MsgDispatcher : private noncopyable {
     using SeqType = Type::SeqType;
     using CmdType = Type::CmdType;
 

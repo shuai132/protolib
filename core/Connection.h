@@ -11,12 +11,10 @@ namespace protolib {
  * 消息连接
  * 约定消息发送和接收的接口
  */
-class Connection : public noncopyable {
-public:
+class Connection : private noncopyable {
     using PayloadHandle = std::function<void(const std::string& payload)>;
 
 public:
-    Connection() = default;
     virtual ~Connection() = default;
 
 public:

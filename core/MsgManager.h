@@ -13,14 +13,14 @@ namespace protolib {
  * 2. 持有一个连接 收发均基于此连接
  * 为了方便使用，消息注册和发送重载了多种形式。
  */
-class MsgManager : public noncopyable {
-public:
+class MsgManager : private noncopyable {
     using SeqType = Type::SeqType;
     using CmdType = Type::CmdType;
 
     using CmdHandle = MsgDispatcher::CmdHandle;
     using RspCallback = MsgDispatcher::RspHandle;
     using TimeoutCb = MsgDispatcher::TimeoutCb;
+
     using PingCallback = std::function<void(const std::string&)>;
 
 public:
