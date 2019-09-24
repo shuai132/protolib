@@ -84,11 +84,11 @@ void MsgDispatcher::subscribeRsp(SeqType seq, const MsgDispatcher::RspHandle& ha
     throw_if(setTimeout_ == nullptr, "no timeout will cause memory leak");
 
     setTimeout_(timeoutMs, [=] {
-        if (timeoutCb) {
-            timeoutCb();
-        }
         auto iter = rspHandleMap_.find(seq);
         if (iter != rspHandleMap_.cend()) {
+            if (timeoutCb) {
+                timeoutCb();
+            }
             rspHandleMap_.erase(seq);
             LOGD("Timeout seq=%d, rspHandleMap_.size=%zu", seq, rspHandleMap_.size());
         }
