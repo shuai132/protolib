@@ -28,7 +28,6 @@ add_compile_options(-Wall)
 add_library(${PROJECT_NAME}
         STATIC
         proto/cpp/Msg.pb.cc
-        core/ProtoUtils.cpp
         core/MsgDispatcher.cpp
         core/Connection.cpp
         core/MsgManager.cpp

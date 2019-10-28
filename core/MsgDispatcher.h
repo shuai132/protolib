@@ -24,7 +24,7 @@ public:
     using RspHandle = std::function<void(const Msg&)>;
 
     using TimeoutCb = std::function<void()>;
-    using SetTimeout = std::function<void(uint32_t ms, TimeoutCb)>;
+    using SetTimeout = std::function<void(uint32_t ms, const TimeoutCb&)>;
 
 public:
     explicit MsgDispatcher(std::shared_ptr<Connection> conn);
