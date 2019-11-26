@@ -1,5 +1,7 @@
 # protolib
 
+[![Build Status](https://github.com/shuai132/protolib/workflows/build/badge.svg)](https://github.com/shuai132/protolib/actions?workflow=build)
+
 a simple RPC library for C++ based on Protobuf.
 
 简单的C++ RPC库，基于Protobuf。
