@@ -16,9 +16,6 @@ using namespace google::protobuf;
  * 注册消息到指定命令
  */
 class MsgDispatcher : private noncopyable {
-    using SeqType = Type::SeqType;
-    using CmdType = Type::CmdType;
-
 public:
     using CmdHandle = std::function<Msg(const Msg&)>;
     using RspHandle = std::function<void(const Msg&)>;

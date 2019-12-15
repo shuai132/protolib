@@ -5,11 +5,10 @@
 #include "Exception.h"
 
 namespace protolib {
-namespace ProtoUtils {
+namespace utils {
 
 using namespace google::protobuf;
 using namespace proto;
-using namespace Type;
 
 // 消息的序列号 作为消息ID
 static std::atomic<SeqType> MsgSeq(0);

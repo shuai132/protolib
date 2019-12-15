@@ -3,7 +3,6 @@
 #include "log.h"
 
 using namespace protolib;
-using namespace Type;
 
 /**
  * 消息收发示例

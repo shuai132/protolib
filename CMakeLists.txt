@@ -28,12 +28,12 @@ add_compile_options(-Wall)
 add_library(${PROJECT_NAME}
         STATIC
         proto/cpp/Msg.pb.cc
-        core/MsgDispatcher.cpp
-        core/Connection.cpp
-        core/MsgManager.cpp
+        src/MsgDispatcher.cpp
+        src/Connection.cpp
+        src/MsgManager.cpp
         )
 link_libraries(${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} PUBLIC . core)
+target_include_directories(${PROJECT_NAME} PUBLIC . src)
 
 # log
 include_directories(modules/log)

@@ -15,19 +15,19 @@ void MsgManager::sendPing(const string& payload, const MsgManager::PingCallback&
     stringValue.set_value(payload);
     sendMessage(Msg::PING, stringValue, [cb](const Msg& msg) {
         if (cb == nullptr) return;
-        cb(ProtoUtils::UnpackMsgData<StringValue>(msg).value());
+        cb(utils::UnpackMsgData<StringValue>(msg).value());
     }, timeoutCb, timeoutMs);
 }
 
-void MsgManager::sendMessage(MsgManager::CmdType cmd, const Message& message, const MsgManager::RspCallback& cb, const TimeoutCb& timeoutCb, uint32_t timeoutMs) {
+void MsgManager::sendMessage(CmdType cmd, const Message& message, const MsgManager::RspCallback& cb, const TimeoutCb& timeoutCb, uint32_t timeoutMs) {
     // 指定消息类型创建payload
     conn_->sendPayload(CreateMessagePayload(cmd, message, cb, timeoutCb, timeoutMs));
 }
 
 std::string
-MsgManager::CreateMessagePayload(MsgManager::CmdType cmd, const Message& message, const MsgManager::RspCallback& cb, const TimeoutCb& timeoutCb, uint32_t timeoutMs) {
+MsgManager::CreateMessagePayload(CmdType cmd, const Message& message, const MsgManager::RspCallback& cb, const TimeoutCb& timeoutCb, uint32_t timeoutMs) {
     std::string payload;
-    auto msg = ProtoUtils::CreateCmdMsg(cmd, message);
+    auto msg = utils::CreateCmdMsg(cmd, message);
     bool ret = msg.SerializeToString(&payload);
     throw_if(not ret);
     dispatcher_.subscribeRsp(msg.seq(), cb, timeoutCb, timeoutMs);

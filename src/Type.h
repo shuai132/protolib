@@ -3,7 +3,6 @@
 #include "google/protobuf/wrappers.pb.h"
 
 namespace protolib {
-namespace Type {
 
 using CmdType = int;
 using SeqType = uint32_t;
@@ -37,5 +36,4 @@ R(T msg, bool success) {
     return RspType<T>(std::move(msg), success);
 }
 
-}
 }

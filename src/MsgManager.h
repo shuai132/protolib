@@ -14,9 +14,6 @@ namespace protolib {
  * 为了方便使用，消息注册和发送重载了多种形式。
  */
 class MsgManager : private noncopyable {
-    using SeqType = Type::SeqType;
-    using CmdType = Type::CmdType;
-
     using CmdHandle = MsgDispatcher::CmdHandle;
     using RspCallback = MsgDispatcher::RspHandle;
     using TimeoutCb = MsgDispatcher::TimeoutCb;
@@ -36,13 +33,13 @@ public:
      * @tparam T 接收消息的类型 这将决定解析行为 与发送时"发送参数类型"一致
      * @tparam U 返回消息结果的类型 与发送时"回调参数类型"一致
      * @param cmd
-     * @param handle 接收T类型消息 返回Type::RspType<T>类型消息作为回复 可使用Type::R(Message, bool)构造 也可直接返回Message或bool
+     * @param handle 接收T类型消息 返回RspType<T>类型消息作为回复 可使用R(Message, bool)构造 也可直接返回Message或bool
      */
     template <typename T, typename U, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T), ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(U)>
-    void subscribe(CmdType cmd, const std::function<Type::RspType<U>(T&&)>& handle) {
+    void subscribe(CmdType cmd, const std::function<RspType<U>(T&&)>& handle) {
         dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
-            Type::RspType<U> rsp = handle(ProtoUtils::UnpackMsgData<T>(msg));
-            return ProtoUtils::CreateRspMsg(
+            RspType<U> rsp = handle(utils::UnpackMsgData<T>(msg));
+            return utils::CreateRspMsg(
                     msg.seq(),
                     rsp.message,
                     rsp.success
@@ -59,10 +56,10 @@ public:
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
     void subscribe(CmdType cmd, const std::function<bool(T&&)>& handle) {
         dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
-            bool success = handle(ProtoUtils::UnpackMsgData<T>(msg));
-            return ProtoUtils::CreateRspMsg(
+            bool success = handle(utils::UnpackMsgData<T>(msg));
+            return utils::CreateRspMsg(
                     msg.seq(),
-                    Type::DataNone,
+                    DataNone,
                     success
             );
         });
@@ -76,9 +73,9 @@ public:
     void subscribe(CmdType cmd, const std::function<bool()>& handle) {
         dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
             bool success = handle();
-            return ProtoUtils::CreateRspMsg(
+            return utils::CreateRspMsg(
                     msg.seq(),
-                    Type::DataNone,
+                    DataNone,
                     success
             );
         });
@@ -91,10 +88,10 @@ public:
      * @param handle 不接收参数 返回R(msg, true)形式
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    void subscribe(CmdType cmd, const std::function<Type::RspType<T>()>& handle) {
+    void subscribe(CmdType cmd, const std::function<RspType<T>()>& handle) {
         dispatcher_.subscribeCmd(cmd, [handle](const Msg& msg) {
-            Type::RspType<T> rsp = handle();
-            return ProtoUtils::CreateRspMsg(
+            RspType<T> rsp = handle();
+            return utils::CreateRspMsg(
                     msg.seq(),
                     rsp.message,
                     rsp.success
@@ -115,14 +112,14 @@ public:
      * @tparam T 消息回复数据载体的类型
      * @param cmd 消息类型
      * @param message 消息数据
-     * @param cb 消息回调 参数类型Type::RspType<T>
+     * @param cb 消息回调 参数类型RspType<T>
      * @param timeoutCb 超时回调
      * @param timeoutMs 超时时间
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    inline void send(CmdType cmd, const Message& message, const std::function<void(Type::RspType<T>&&)>& cb, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
+    inline void send(CmdType cmd, const Message& message, const std::function<void(RspType<T>&&)>& cb, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
         sendMessage(cmd, message, [cb](const Msg& msg) {
-            cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
+            cb(RspType<T>(msg.success() ? utils::UnpackMsgData<T>(msg) : T(), msg.success()));
         }, timeoutCb, timeoutMs);
     }
 
@@ -130,14 +127,14 @@ public:
      * 发送命令 获取回复消息
      * @tparam T 接收消息的类型
      * @param cmd
-     * @param cb 消息回调 参数类型Type::RspType<T>
+     * @param cb 消息回调 参数类型RspType<T>
      * @param timeoutCb 超时回调
      * @param timeoutMs 超时时间
      */
     template <typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
-    inline void send(CmdType cmd, const std::function<void(Type::RspType<T>&&)>& cb, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
-        sendMessage(cmd, Type::DataNone, [cb](const Msg& msg) {
-            cb(Type::RspType<T>(msg.success() ? ProtoUtils::UnpackMsgData<T>(msg) : T(), msg.success()));
+    inline void send(CmdType cmd, const std::function<void(RspType<T>&&)>& cb, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
+        sendMessage(cmd, DataNone, [cb](const Msg& msg) {
+            cb(RspType<T>(msg.success() ? utils::UnpackMsgData<T>(msg) : T(), msg.success()));
         }, timeoutCb, timeoutMs);
     }
 
@@ -165,7 +162,7 @@ public:
      * @param timeoutMs 超时时间
      */
     inline void send(CmdType cmd, const std::function<void(bool)>& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000) {
-        send(cmd, Type::DataNone, cb, timeoutCb, timeoutMs);
+        send(cmd, DataNone, cb, timeoutCb, timeoutMs);
     }
 
     /**
@@ -186,7 +183,7 @@ private:
      * @param timeoutCb 超时回调
      * @param timeoutMs 超时时间
      */
-    void sendMessage(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000);
+    void sendMessage(CmdType cmd, const Message& message = DataNone, const RspCallback& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000);
 
     /**
      * 创建消息并设置回调 返回Payload用于传输
@@ -197,7 +194,7 @@ private:
      * @param timeoutMs 超时时间
      * @return
      */
-    std::string CreateMessagePayload(CmdType cmd, const Message& message = Type::DataNone, const RspCallback& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000);
+    std::string CreateMessagePayload(CmdType cmd, const Message& message = DataNone, const RspCallback& cb = nullptr, const TimeoutCb& timeoutCb = nullptr, uint32_t timeoutMs = 3000);
 
 private:
     std::shared_ptr<Connection> conn_;

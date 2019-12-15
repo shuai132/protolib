@@ -7,7 +7,7 @@ namespace protolib {
 MsgDispatcher::MsgDispatcher(std::shared_ptr<Connection> conn) : conn_(std::move(conn)) {
     conn_->setOnPayloadHandle([this](const std::string& payload){
         bool success;
-        auto msg = ProtoUtils::ParsePayload(payload, success);
+        auto msg = utils::ParsePayload(payload, success);
         if (success) {
             this->dispatch(msg);
         } else {
@@ -19,7 +19,7 @@ MsgDispatcher::MsgDispatcher(std::shared_ptr<Connection> conn) : conn_(std::move
     subscribeCmd(Msg::PING, [](const Msg& param) {
         auto msg = static_cast<Msg>(param);
         msg.set_cmd(Msg::PONG);
-        return ProtoUtils::CreateRspMsg(msg.seq(), ProtoUtils::UnpackMsgData<StringValue>(std::forward<Msg>(msg)));
+        return utils::CreateRspMsg(msg.seq(), utils::UnpackMsgData<StringValue>(std::forward<Msg>(msg)));
     });
 }
 
@@ -38,7 +38,7 @@ void MsgDispatcher::dispatch(const Msg& msg) {
             }
             const auto& fn = (*iter).second;
             auto resp = fn(msg);
-            conn_->sendPayload(ProtoUtils::CreatePayload(resp));
+            conn_->sendPayload(utils::CreatePayload(resp));
         } break;
 
         case Msg::RESPONSE:
