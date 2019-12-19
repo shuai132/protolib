@@ -8,9 +8,6 @@
 namespace protolib {
 namespace utils {
 
-using namespace google::protobuf;
-using namespace proto;
-
 /**
  * 创建Cmd消息
  * @param cmd

@@ -4,9 +4,12 @@
 
 namespace protolib {
 
+using google::protobuf::StringValue;
+using google::protobuf::Message;
+
 using CmdType = int;
 using SeqType = uint32_t;
-using Message = google::protobuf::Message;
+using Msg     = proto::Msg;
 
 // 默认空消息 方便接口设计
 const google::protobuf::StringValue DataNone; // NOLINT(cert-err58-cpp)

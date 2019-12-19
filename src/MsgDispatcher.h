@@ -8,9 +8,6 @@
 
 namespace protolib {
 
-using namespace proto;
-using namespace google::protobuf;
-
 /**
  * 消息分发器
  * 注册消息到指定命令

@@ -1,4 +1,5 @@
 #include "MsgManager.h"
+#include "Type.h"
 
 namespace protolib {
 
@@ -10,7 +11,7 @@ std::shared_ptr<Connection> MsgManager::getConn() const {
     return conn_;
 }
 
-void MsgManager::sendPing(const string& payload, const MsgManager::PingCallback& cb, const TimeoutCb& timeoutCb, uint32_t timeoutMs) {
+void MsgManager::sendPing(const std::string& payload, const MsgManager::PingCallback& cb, const TimeoutCb& timeoutCb, uint32_t timeoutMs) {
     StringValue stringValue;
     stringValue.set_value(payload);
     sendMessage(Msg::PING, stringValue, [cb](const Msg& msg) {
