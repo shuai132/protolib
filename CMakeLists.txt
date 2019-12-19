@@ -18,6 +18,7 @@ if (protolib_BUILD_PROTOBUF)
     option(protobuf_WITH_ZLIB "" OFF)
     add_subdirectory(third_party/protobuf/cmake protobuf)
     link_libraries(libprotobuf)
+    target_compile_options(libprotobuf PRIVATE -w)
 endif()
 
 # common
