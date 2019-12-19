@@ -11,7 +11,7 @@ namespace protolib {
  * 消息连接
  * 约定消息发送和接收的接口
  */
-class Connection : private noncopyable {
+class Connection : noncopyable {
     using PayloadHandle = std::function<void(const std::string& payload)>;
 
 public:

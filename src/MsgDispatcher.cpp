@@ -1,13 +1,14 @@
 #include "MsgDispatcher.h"
+#include "MsgUtils.h"
 #include "log.h"
-#include "ProtoUtils.h"
 
 namespace protolib {
 
-MsgDispatcher::MsgDispatcher(std::shared_ptr<Connection> conn) : conn_(std::move(conn)) {
+MsgDispatcher::MsgDispatcher(std::shared_ptr<Connection> conn, std::shared_ptr<coder::Coder> coder)
+    : conn_(std::move(conn)), coder_(std::move(coder)) {
     conn_->setOnPayloadHandle([this](const std::string& payload){
         bool success;
-        auto msg = utils::ParsePayload(payload, success);
+        auto msg = coder_->unserialize(payload, success);
         if (success) {
             this->dispatch(msg);
         } else {
@@ -38,7 +39,7 @@ void MsgDispatcher::dispatch(const Msg& msg) {
             }
             const auto& fn = (*iter).second;
             auto resp = fn(msg);
-            conn_->sendPayload(utils::CreatePayload(resp));
+            conn_->sendPayload(coder_->serialize(resp));
         } break;
 
         case Msg::RESPONSE:

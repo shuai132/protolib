@@ -3,7 +3,7 @@
 #include "proto/cpp/Msg.pb.h"
 #include "Connection.h"
 #include "Type.h"
-#include "ProtoUtils.h"
+#include "coder/Coder.h"
 #include "noncopyable.h"
 
 namespace protolib {
@@ -15,7 +15,7 @@ using namespace google::protobuf;
  * 消息分发器
  * 注册消息到指定命令
  */
-class MsgDispatcher : private noncopyable {
+class MsgDispatcher : noncopyable {
 public:
     using CmdHandle = std::function<Msg(const Msg&)>;
     using RspHandle = std::function<void(const Msg&)>;
@@ -24,7 +24,7 @@ public:
     using SetTimeout = std::function<void(uint32_t ms, const TimeoutCb&)>;
 
 public:
-    explicit MsgDispatcher(std::shared_ptr<Connection> conn);
+    explicit MsgDispatcher(std::shared_ptr<Connection> conn, std::shared_ptr<coder::Coder> coder);
     ~MsgDispatcher() = default;
 
 public:
@@ -42,6 +42,7 @@ public:
 
 private:
     std::shared_ptr<Connection> conn_;
+    std::shared_ptr<coder::Coder> coder_;
     std::map<CmdType, CmdHandle> cmdHandleMap_;
     std::map<SeqType, RspHandle> rspHandleMap_;
     SetTimeout setTimeout_;

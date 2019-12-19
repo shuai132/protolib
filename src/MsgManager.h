@@ -2,7 +2,8 @@
 
 #include "Connection.h"
 #include "MsgDispatcher.h"
-#include "ProtoUtils.h"
+#include "coder/ProtoCoder.h"
+#include "MsgUtils.h"
 #include "noncopyable.h"
 
 namespace protolib {
@@ -13,7 +14,7 @@ namespace protolib {
  * 2. 持有一个连接 收发均基于此连接
  * 为了方便使用，消息注册和发送重载了多种形式。
  */
-class MsgManager : private noncopyable {
+class MsgManager : noncopyable {
     using CmdHandle = MsgDispatcher::CmdHandle;
     using RspCallback = MsgDispatcher::RspHandle;
     using TimeoutCb = MsgDispatcher::TimeoutCb;
@@ -21,7 +22,7 @@ class MsgManager : private noncopyable {
     using PingCallback = std::function<void(const std::string&)>;
 
 public:
-    explicit MsgManager(std::shared_ptr<Connection> conn);
+    explicit MsgManager(std::shared_ptr<Connection> conn, std::shared_ptr<coder::Coder> coder = std::make_shared<coder::ProtoCoder>());
 
 public:
     std::shared_ptr<Connection> getConn() const;

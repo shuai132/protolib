@@ -25,13 +25,12 @@ set(CMAKE_CXX_STANDARD 11)
 add_compile_options(-Wall)
 
 # build library
-add_library(${PROJECT_NAME}
-        STATIC
-        proto/cpp/Msg.pb.cc
-        src/MsgDispatcher.cpp
-        src/Connection.cpp
-        src/MsgManager.cpp
+file(GLOB SRCS
+        proto/cpp/*.c*
+        src/*.c*
+        src/coder/*.c*
         )
+add_library(${PROJECT_NAME} STATIC ${SRCS})
 link_libraries(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC . src)
 
