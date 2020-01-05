@@ -6,7 +6,7 @@ namespace coder {
 std::string coder::ProtoCoder::serialize(const Msg& msg) {
     std::string payload;
     bool ret = msg.SerializeToString(&payload);
-    throw_if(not ret);
+    throw_if(not ret, "ProtoCoder::serialize exception, cmd" + std::to_string(msg.cmd()));
     return payload;
 }
 

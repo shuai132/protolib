@@ -43,7 +43,7 @@ template<typename T, ENSURE_TYPE_IS_MESSAGE_AND_NOT_MSG(T)>
 inline T UnpackMsgData(const Msg& msg) {
     T data;
     bool ret = msg.data().UnpackTo(&data);
-    throw_if(not ret);
+    throw_if(not ret, "UnpackMsgData exception, cmd:" + std::to_string(msg.cmd()));
     return data;
 }
 
