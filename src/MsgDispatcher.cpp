@@ -38,8 +38,13 @@ void MsgDispatcher::dispatch(const Msg& msg) {
                 return;
             }
             const auto& fn = (*iter).second;
-            auto resp = fn(msg);
-            conn_->sendPayload(coder_->serialize(resp));
+            try {
+                auto resp = fn(msg);
+                conn_->sendPayload(coder_->serialize(resp));
+            } catch (...) {
+                LOGE("type error！please check your cmd and data type! cmd:%d", cmd);
+            }
+
         } break;
 
         case Msg::RESPONSE:
